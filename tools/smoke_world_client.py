@@ -37,7 +37,7 @@ def send_client_frame(sock: socket.socket, state: SessionState, ack4: bytes, tex
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="V860 Phase-4 visible world smoke client")
+    ap = argparse.ArgumentParser(description="V860 Phase-5 movement world smoke client")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=5926)
     ap.add_argument("--timeout", type=float, default=5.0)
@@ -65,12 +65,14 @@ def main() -> int:
             raise RuntimeError("world bootstrap missing type-1 map switch")
         if make_entity_record("航海者", 53, 0, 1, 10, 10) not in second:
             raise RuntimeError("world bootstrap missing visible player sprite template")
+        if make_entity_record("测试向导", 54, 0, 2, 14, 10) not in second:
+            raise RuntimeError("world bootstrap missing reference NPC sprite")
         if b"<r>walk 1\n" not in second:
             raise RuntimeError("world bootstrap missing parser-compatible player selector")
-        print("LOGIN_VISIBLE_WORLD_BOOTSTRAP_OK")
+        print("LOGIN_MOVEMENT_WORLD_BOOTSTRAP_OK")
 
         send_client_frame(s, state, ack2, "#map 60hzwlocalsj\n")
-        _ack3, third = recv_server_frame(s)
+        ack3, third = recv_server_frame(s)
         if not third.startswith(b"\x00\x00\x7f"):
             raise RuntimeError("map response missing marker 127")
         zero = third.find(b"\x00", 3)
@@ -86,10 +88,20 @@ def main() -> int:
         descriptor_offset = int.from_bytes(map_bytes[4:6], "little")
         if map_bytes[descriptor_offset:descriptor_offset + 4] != bytes((0, 0, 10, 0)):
             raise RuntimeError("visible map is not wired to d/10.tij")
-        if (map_bytes[20] & 0x0F) != 0:
-            raise RuntimeError("first map cell does not select tile resource slot 0")
-        print(f"VISIBLE_MAP_DOWNLOAD_OK key={key} bytes={map_len} size=24x24 tileset=d/10.tij")
-        print("SMOKE_VISIBLE_WORLD_OK")
+        if map_bytes[21] & 0x3F != 0x3F:
+            raise RuntimeError("movement exit bits are not enabled on bootstrap map")
+        print(
+            f"WALKABLE_MAP_DOWNLOAD_OK key={key} bytes={map_len} "
+            "size=24x24 tileset=d/10.tij flags=0x3F"
+        )
+
+        # Player-facing terminology check using a command observed from the real client.
+        send_client_frame(s, state, ack3, "guild\n")
+        _ack4, fourth = recv_server_frame(s)
+        if "公会系统协议恢复中".encode("utf-8") not in fourth:
+            raise RuntimeError("guild command did not use HZW player-facing terminology")
+        print("GUILD_TERMINOLOGY_OK")
+        print("SMOKE_MOVEMENT_WORLD_OK")
     return 0
 
 
