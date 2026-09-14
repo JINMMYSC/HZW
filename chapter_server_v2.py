@@ -1,18 +1,24 @@
 from __future__ import annotations
 
 import server as legacy
+from chapter_maps import make_chapter_map
 from chapter_server import WindmillMarineServer, WindmillMarineWorld
 from hzw_protocol import SessionState
 
 
 class WindmillMarineWorldV2(WindmillMarineWorld):
-    """Flow-completion fixes layered on the large two-chapter server.
-
-    Kept separate so the first large chapter implementation remains easy to diff.
-    """
+    """Flow-completion fixes layered on the large two-chapter server."""
 
     DOORS = dict(WindmillMarineWorld.DOORS)
     DOORS["mb_registry"] = [("副官试练屋", "mb_trial", 12, 8)]
+
+    def _area_map(self, area_id: str) -> bytes:
+        if area_id not in self.map_cache:
+            self.map_cache[area_id] = make_chapter_map(
+                area_id, self.MAP_WIDTH, self.MAP_HEIGHT
+            )
+            self.cache_key_to_area[self._map_cache_key(area_id)] = area_id
+        return self.map_cache[area_id]
 
     def _auto_script(self, p, event_source: str):
         messages: list[str] = []
