@@ -1,42 +1,39 @@
 @echo off
 setlocal EnableExtensions
 cd /d "%~dp0.."
-title HZW V860 Compatibility Server
+title HZW V860 Windmill + Marine Server
 chcp 65001 >nul 2>nul
 
 echo ============================================================
-echo HZW V860 Phase 6 compatibility server
+echo HZW V860 - Windmill Village + Marine Base restoration
 echo TCP : 0.0.0.0:5926
 echo HTTP: 0.0.0.0:8080
-echo World: corrected cell3 walkability + type7 position sync
-echo NPC  : key 5 dialogue enabled near guide
-echo HZW terminology: Deputy / Battle Skills / Guild
+echo World: multi-area chapter maps + original V860 resources
+echo Move : client-local smooth walk; server sync/correction only
+echo Quest: Windmill main + Marine main + 11 Marine side quests
+echo Save : data\players\*.json
+echo HZW  : Deputy / Battle Skills / Guild
 echo ============================================================
 echo.
 
 set "PY_CMD="
 python -c "import sys; print(sys.version)" >nul 2>nul
 if not errorlevel 1 set "PY_CMD=python"
-
 if not defined PY_CMD (
   py -3 -c "import sys; print(sys.version)" >nul 2>nul
   if not errorlevel 1 set "PY_CMD=py -3"
 )
-
 if not defined PY_CMD (
   echo [ERROR] Python 3 could not be started.
   echo Install Python 3 and enable Add Python to PATH.
-  echo.
-  echo This window will stay open so the error can be photographed.
   pause
   exit /b 1
 )
 
 echo [OK] Python launcher: %PY_CMD%
-echo [INFO] Starting server...
+echo [INFO] Starting two-chapter server...
 echo.
-
-%PY_CMD% phase3_server.py --debug
+%PY_CMD% chapter_server.py --debug
 set "SERVER_EXIT=%ERRORLEVEL%"
 
 echo.
