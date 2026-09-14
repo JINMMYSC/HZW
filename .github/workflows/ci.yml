@@ -1,0 +1,20 @@
+name: V860 Protocol CI
+
+on:
+  push:
+    branches: [main, work/v860-world-bootstrap]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Syntax check
+        run: python -m py_compile server.py hzw_protocol.py tools/smoke_client.py tools/patch_client.py
