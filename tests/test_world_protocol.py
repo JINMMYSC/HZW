@@ -11,6 +11,7 @@ from world_protocol import (
     make_entity_record,
     make_map_download_block,
     make_map_switch_record,
+    make_tiled_map,
 )
 
 
@@ -32,21 +33,30 @@ class WorldProtocolTests(unittest.TestCase):
         self.assertEqual(token, "hzwlocal00")
         self.assertEqual(token[:-2] + "sj", "hzwlocalsj")
 
-    def test_entity_record(self):
-        rec = make_entity_record("player", 14, 0, 1, 10, 10)
+    def test_entity_record_uses_visible_character_template(self):
+        rec = make_entity_record("航海者", 53, 0, 1, 10, 10)
         self.assertEqual(((rec[0] << 8) | rec[1]) + 2, len(rec))
         self.assertEqual(rec[2], 4)
-        self.assertEqual(rec[4:10], b"player")
-        self.assertEqual(rec[11:], bytes((14, 0, 1, 10, 10)))
+        self.assertIn("航海者".encode("utf-8"), rec)
+        self.assertTrue(rec.endswith(bytes((53, 0, 1, 10, 10))))
 
     def test_blank_map(self):
-        m = make_blank_map(24, 24)
-        self.assertEqual(len(m), 20 + 24 * 24 * 4)
-        self.assertEqual(m[18:20], bytes((24, 24)))
-        self.assertEqual(m[20:24], bytes((0x0F, 0xFF, 0xFF, 0x00)))
+        m = make_blank_map(4, 3)
+        self.assertEqual(len(m), 20 + 4 * 3 * 4)
+        self.assertEqual(m[18:20], bytes((4, 3)))
+        self.assertEqual(m[20:24], bytes((0x0F, 0xFF, 0xFF, 0x80)))
+
+    def test_tiled_map_references_bundled_tij(self):
+        m = make_tiled_map(4, 3, tileset_id=10)
+        self.assertEqual(m[18:20], bytes((4, 3)))
+        self.assertEqual(m[2], 1)
+        self.assertEqual(m[20:24], bytes((0x00, 0x00, 0xFF, 0x80)))
+        off = int.from_bytes(m[4:6], "little")
+        self.assertEqual(off, 20 + 4 * 3 * 4)
+        self.assertEqual(m[off:off+4], bytes((0, 0, 10, 0)))
 
     def test_map_download_block(self):
-        m = make_blank_map(4, 3)
+        m = make_tiled_map(4, 3, tileset_id=10)
         block = make_map_download_block("hzwlocalsj", m)
         self.assertTrue(block.startswith(b"\x00\x00\x7fhzwlocalsj\x00"))
         zero = block.index(0, 3)
@@ -62,7 +72,7 @@ class WorldProtocolTests(unittest.TestCase):
 
     def test_mixed_payload(self):
         map_rec = make_map_switch_record("hzwlocal00")
-        ent_rec = make_entity_record("player", 14, 0, 1, 10, 10)
+        ent_rec = make_entity_record("航海者", 53, 0, 1, 10, 10)
         payload = join_server_parts(["<log_suc>", map_rec, ent_rec, "<r>walk 1"])
         self.assertTrue(payload.startswith(b"<log_suc>\n"))
         self.assertIn(map_rec, payload)
