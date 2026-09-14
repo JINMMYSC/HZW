@@ -40,6 +40,11 @@ class WorldProtocolTests(unittest.TestCase):
         self.assertIn("航海者".encode("utf-8"), rec)
         self.assertTrue(rec.endswith(bytes((53, 0, 1, 10, 10))))
 
+    def test_reference_npc_template(self):
+        rec = make_entity_record("测试向导", 54, 0, 2, 14, 10)
+        self.assertIn("测试向导".encode("utf-8"), rec)
+        self.assertTrue(rec.endswith(bytes((54, 0, 2, 14, 10))))
+
     def test_blank_map(self):
         m = make_blank_map(4, 3)
         self.assertEqual(len(m), 20 + 4 * 3 * 4)
@@ -54,6 +59,12 @@ class WorldProtocolTests(unittest.TestCase):
         off = int.from_bytes(m[4:6], "little")
         self.assertEqual(off, 20 + 4 * 3 * 4)
         self.assertEqual(m[off:off+4], bytes((0, 0, 10, 0)))
+
+    def test_walkable_tiled_map_sets_all_recovered_exit_bits(self):
+        m = make_tiled_map(4, 3, tileset_id=10, tile_flags=0x3F)
+        self.assertEqual(m[20:24], bytes((0x00, 0x3F, 0xFF, 0x80)))
+        for i in range(20, 20 + 4 * 3 * 4, 4):
+            self.assertEqual(m[i + 1] & 0x3F, 0x3F)
 
     def test_map_download_block(self):
         m = make_tiled_map(4, 3, tileset_id=10)
@@ -72,11 +83,13 @@ class WorldProtocolTests(unittest.TestCase):
 
     def test_mixed_payload(self):
         map_rec = make_map_switch_record("hzwlocal00")
-        ent_rec = make_entity_record("航海者", 53, 0, 1, 10, 10)
-        payload = join_server_parts(["<log_suc>", map_rec, ent_rec, "<r>walk 1"])
+        player = make_entity_record("航海者", 53, 0, 1, 10, 10)
+        npc = make_entity_record("测试向导", 54, 0, 2, 14, 10)
+        payload = join_server_parts(["<log_suc>", map_rec, player, npc, "<r>walk 1"])
         self.assertTrue(payload.startswith(b"<log_suc>\n"))
         self.assertIn(map_rec, payload)
-        self.assertIn(ent_rec, payload)
+        self.assertIn(player, payload)
+        self.assertIn(npc, payload)
         self.assertTrue(payload.endswith(b"<r>walk 1\n"))
 
 
