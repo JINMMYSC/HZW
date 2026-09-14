@@ -18,6 +18,7 @@ SERVER_FILES = [
     "chapter_maps.py",
     "chapter_server.py",
     "chapter_server_v2.py",
+    "chapter_server_v3.py",
 ]
 
 
@@ -43,23 +44,21 @@ def validate_server_package(dst: Path) -> None:
     if missing:
         raise RuntimeError("package validation failed; missing files: " + ", ".join(missing))
 
-    # Compile the exact copied files so a generated ZIP cannot contain an
-    # import/syntax surprise that was hidden by the source-tree environment.
     for name in SERVER_FILES:
         py_compile.compile(str(dst / name), doraise=True)
 
-    # Import the actual entry point from the generated package directory.
     old_path = list(sys.path)
-    old_modules = {name: sys.modules.pop(name, None) for name in (
+    module_names = (
         "server", "hzw_protocol", "world_protocol", "chapter_engine",
-        "chapter_maps", "chapter_server", "chapter_server_v2",
-    )}
+        "chapter_maps", "chapter_server", "chapter_server_v2", "chapter_server_v3",
+    )
+    old_modules = {name: sys.modules.pop(name, None) for name in module_names}
     try:
         sys.path.insert(0, str(dst))
-        __import__("chapter_server_v2")
+        __import__("chapter_server_v3")
     finally:
         sys.path[:] = old_path
-        for name in list(old_modules):
+        for name in module_names:
             sys.modules.pop(name, None)
         for name, module in old_modules.items():
             if module is not None:
@@ -76,8 +75,9 @@ def write_launchers(dst: Path, jar_name: str) -> None:
         "python -c \"import sys\" >nul 2>nul && set \"PY=python\"\r\n"
         "if not defined PY py -3 -c \"import sys\" >nul 2>nul && set \"PY=py -3\"\r\n"
         "if not defined PY (echo [ERROR] Python 3 not found.& pause & exit /b 1)\r\n"
-        "echo HZW V860 - Windmill Village + Marine Base server\r\n"
-        "%PY% chapter_server_v2.py --debug\r\n"
+        "echo HZW V860 - Windmill Village + Marine Base V3 server\r\n"
+        "echo Native exits / NPC collision / keypad menus enabled\r\n"
+        "%PY% chapter_server_v3.py --debug\r\n"
         "set \"EC=%ERRORLEVEL%\"\r\n"
         "echo.\r\n"
         "if not \"%EC%\"==\"0\" echo [ERROR] Server exited with code %EC%.\r\n"
@@ -86,19 +86,21 @@ def write_launchers(dst: Path, jar_name: str) -> None:
         encoding="utf-8",
     )
     (dst / "README_先看我.txt").write_text(
-        "HZW V860 风车镇 + 海军基地 本地复原包\n\n"
+        "HZW V860 风车镇 + 海军基地 本地复原包 V3\n\n"
         "1. 双击 启动服务器.bat。\n"
         f"2. 保持服务器窗口开启，用手机顽童打开 {jar_name}。\n"
         "3. 虚拟屏幕使用 360x360。\n"
         "4. 角色/任务/物品存档位于 data\\players。\n"
-        "5. 普通走路由原V860客户端本地动画完成，服务器维护权威坐标。\n\n"
+        "5. 地图出口采用原V860地图触发点；NPC使用原客户端碰撞交互对象。\n"
+        "6. 1/3/5/7/9/0及个人/系统菜单已接入服务器。\n"
+        "7. 普通走路由原V860客户端本地动画完成，服务器维护权威坐标。\n\n"
         "说明：此包由你本地提供的原 V860 JAR 生成，不在仓库重新分发原游戏 JAR。\n",
         encoding="utf-8",
     )
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Build a local HZW V860 Windmill+Marine test package")
+    ap = argparse.ArgumentParser(description="Build a local HZW V860 Windmill+Marine V3 package")
     ap.add_argument("jar", type=Path, help="your original V860 JAR")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--out", type=Path, default=Path("dist/HZW-V860-Windmill-Marine"))
@@ -115,7 +117,7 @@ def main() -> int:
     write_launchers(out, patched.name)
     validate_server_package(out)
     archive = shutil.make_archive(str(out), "zip", root_dir=out.parent, base_dir=out.name)
-    print("[OK] package validation passed")
+    print("[OK] V3 package validation passed")
     print(f"package folder: {out}")
     print(f"package zip   : {archive}")
     return 0
