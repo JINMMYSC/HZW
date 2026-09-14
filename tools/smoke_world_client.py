@@ -13,7 +13,7 @@ from hzw_protocol import (
     chain_decode,
     encode_socket_client_frame_for_test,
 )
-from world_protocol import make_entity_record, make_map_switch_record
+from world_protocol import make_entity_record, make_map_switch_record, make_position_record
 
 BOOTSTRAP = b"\x80\x5e\x78\x78\x80kawa\n"
 
@@ -37,7 +37,7 @@ def send_client_frame(sock: socket.socket, state: SessionState, ack4: bytes, tex
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="V860 Phase-5 movement world smoke client")
+    ap = argparse.ArgumentParser(description="V860 Phase-6 live movement smoke client")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=5926)
     ap.add_argument("--timeout", type=float, default=5.0)
@@ -63,13 +63,13 @@ def main() -> int:
             raise RuntimeError("world bootstrap missing <log_suc>")
         if make_map_switch_record("hzwlocal00") not in second:
             raise RuntimeError("world bootstrap missing type-1 map switch")
-        if make_entity_record("航海者", 53, 0, 1, 10, 10) not in second:
+        if make_entity_record("航海者", 53, 6, 1, 10, 10) not in second:
             raise RuntimeError("world bootstrap missing visible player sprite template")
-        if make_entity_record("测试向导", 54, 0, 2, 14, 10) not in second:
+        if make_entity_record("测试向导", 54, 2, 2, 16, 10) not in second:
             raise RuntimeError("world bootstrap missing reference NPC sprite")
         if b"<r>walk 1\n" not in second:
             raise RuntimeError("world bootstrap missing parser-compatible player selector")
-        print("LOGIN_MOVEMENT_WORLD_BOOTSTRAP_OK")
+        print("LOGIN_LIVE_WORLD_BOOTSTRAP_OK")
 
         send_client_frame(s, state, ack2, "#map 60hzwlocalsj\n")
         ack3, third = recv_server_frame(s)
@@ -88,20 +88,35 @@ def main() -> int:
         descriptor_offset = int.from_bytes(map_bytes[4:6], "little")
         if map_bytes[descriptor_offset:descriptor_offset + 4] != bytes((0, 0, 10, 0)):
             raise RuntimeError("visible map is not wired to d/10.tij")
-        if map_bytes[21] & 0x3F != 0x3F:
-            raise RuntimeError("movement exit bits are not enabled on bootstrap map")
-        print(
-            f"WALKABLE_MAP_DOWNLOAD_OK key={key} bytes={map_len} "
-            "size=24x24 tileset=d/10.tij flags=0x3F"
-        )
+        if map_bytes[23] & 0x3F != 0x3F:
+            raise RuntimeError("real V860 walkability bits are not set in cell[3]")
+        if map_bytes[21] != 0:
+            raise RuntimeError("Phase-5 wrong-byte movement flag leaked into cell[1]")
+        print("CORRECTED_WALKABILITY_BYTE_OK cell3=0x3F")
 
-        # Player-facing terminology check using a command observed from the real client.
-        send_client_frame(s, state, ack3, "guild\n")
-        _ack4, fourth = recv_server_frame(s)
-        if "公会系统协议恢复中".encode("utf-8") not in fourth:
+        # Direct flat-ground right step. Server should return recovered type-7
+        # position update for player id 1: (10,10) -> (12,10), direction 5.
+        send_client_frame(s, state, ack3, "#4\n")
+        ack4, fourth = recv_server_frame(s)
+        expected_move = make_position_record(1, 12, 10, 5)
+        if expected_move not in fourth:
+            raise RuntimeError("server did not return expected type-7 movement update")
+        print("TYPE7_MOVEMENT_SYNC_OK pos=12,10 dir=RIGHT")
+
+        # At (12,10), guide is at (16,10): exactly within the restored test
+        # interaction radius. Key 5 should now produce real NPC dialogue.
+        send_client_frame(s, state, ack4, "5\n")
+        ack5, fifth = recv_server_frame(s)
+        if "测试向导：".encode("utf-8") not in fifth:
+            raise RuntimeError("key 5 did not produce NPC dialogue")
+        print("NPC_DIALOGUE_OK")
+
+        send_client_frame(s, state, ack5, "guild\n")
+        _ack6, sixth = recv_server_frame(s)
+        if "公会系统协议恢复中".encode("utf-8") not in sixth:
             raise RuntimeError("guild command did not use HZW player-facing terminology")
         print("GUILD_TERMINOLOGY_OK")
-        print("SMOKE_MOVEMENT_WORLD_OK")
+        print("SMOKE_PHASE6_LIVE_MOVEMENT_OK")
     return 0
 
 
