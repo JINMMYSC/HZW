@@ -69,6 +69,28 @@ def make_entity_record(
     return make_normal_record(4, bytes(payload))
 
 
+def make_position_record(
+    object_id: int,
+    x: int,
+    y: int,
+    direction: int,
+    aux_a: int = 0,
+    aux_b: int = 0,
+) -> bytes:
+    """Type 7 entity position/direction update recovered from V860.
+
+    O0OO0O0.O00O(byte[]) parses this record as:
+      object_id, x, y, aux_a, aux_b, direction
+    then applies O00OO00(entity, x, y) and stores the direction byte.
+    Coordinates use the client's half-tile world units: flat movement changes
+    one axis by 2 for each map cell.
+    """
+    payload = bytearray()
+    for value in (object_id, x, y, aux_a, aux_b, direction):
+        payload += encode_smallint(value)
+    return make_normal_record(7, bytes(payload))
+
+
 def make_map_download_block(cache_key: str, map_bytes: bytes) -> bytes:
     """Special stream marker 127 returned after '#map 60<cache_key>'."""
     key = cache_key.encode("utf-8")
@@ -109,24 +131,25 @@ def make_tiled_map(
     width: int = 24,
     height: int = 24,
     tileset_id: int = 10,
-    tile_flags: int = 0,
+    tile_flags: int = 0x3F,
 ) -> bytes:
     """Visible bootstrap map using one JAR-bundled ``d/<id>.tij`` tileset.
 
-    Recovered V860 parser rules:
-    - map cells begin at byte 20 and are 4 bytes each;
-    - low nibble of cell[0] selects one of up to 15 map tile resources;
-    - header[2] is the number of tile resources;
-    - header[4:6] points to 4-byte tile resource descriptors;
-    - descriptor (offset=0, value=N) means load bundled ``d/N.tij``.
+    Recovered V860 cell layout:
+      cell[0] low nibble -> tileset slot
+      cell[1]            -> tile/frame attributes
+      cell[2]            -> overlay selector (0xFF disables overlay)
+      cell[3]            -> WALKABILITY BITS
 
-    The secondary overlay is disabled (0xFF / high-bit flag), so this stage
-    intentionally renders only the original bundled ground tile animation.
+    The Phase-5 server accidentally put 0x3F into cell[1]. The real movement
+    routine O000O0O.O0OO0O(...) reads cell[3], which is why the real client
+    could turn but never emitted #1/#2/#3/#4 step commands. Phase 6 writes
+    walkability to the correct byte.
     """
     if not 0 <= tileset_id <= 0xFFFF:
         raise ValueError("tileset_id out of range")
     header = _base_map_header(width, height)
-    cell = bytes((0x00, tile_flags & 0xFF, 0xFF, 0x80))
+    cell = bytes((0x00, 0x00, 0xFF, tile_flags & 0xFF))
     cells = cell * (width * height)
     descriptor_offset = 20 + len(cells)
     descriptor = b"\x00\x00" + int(tileset_id).to_bytes(2, "little")
