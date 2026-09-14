@@ -11,6 +11,7 @@ from world_protocol import (
     make_entity_record,
     make_map_download_block,
     make_map_switch_record,
+    make_position_record,
     make_tiled_map,
 )
 
@@ -34,16 +35,22 @@ class WorldProtocolTests(unittest.TestCase):
         self.assertEqual(token[:-2] + "sj", "hzwlocalsj")
 
     def test_entity_record_uses_visible_character_template(self):
-        rec = make_entity_record("航海者", 53, 0, 1, 10, 10)
+        rec = make_entity_record("航海者", 53, 6, 1, 10, 10)
         self.assertEqual(((rec[0] << 8) | rec[1]) + 2, len(rec))
         self.assertEqual(rec[2], 4)
         self.assertIn("航海者".encode("utf-8"), rec)
-        self.assertTrue(rec.endswith(bytes((53, 0, 1, 10, 10))))
+        self.assertTrue(rec.endswith(bytes((53, 6, 1, 10, 10))))
 
     def test_reference_npc_template(self):
-        rec = make_entity_record("测试向导", 54, 0, 2, 14, 10)
+        rec = make_entity_record("测试向导", 54, 2, 2, 16, 10)
         self.assertIn("测试向导".encode("utf-8"), rec)
-        self.assertTrue(rec.endswith(bytes((54, 0, 2, 14, 10))))
+        self.assertTrue(rec.endswith(bytes((54, 2, 2, 16, 10))))
+
+    def test_type7_position_record(self):
+        rec = make_position_record(1, 12, 10, 5)
+        self.assertEqual(((rec[0] << 8) | rec[1]) + 2, len(rec))
+        self.assertEqual(rec[2], 7)
+        self.assertEqual(rec[3:], bytes((1, 12, 10, 0, 0, 5)))
 
     def test_blank_map(self):
         m = make_blank_map(4, 3)
@@ -55,16 +62,16 @@ class WorldProtocolTests(unittest.TestCase):
         m = make_tiled_map(4, 3, tileset_id=10)
         self.assertEqual(m[18:20], bytes((4, 3)))
         self.assertEqual(m[2], 1)
-        self.assertEqual(m[20:24], bytes((0x00, 0x00, 0xFF, 0x80)))
+        self.assertEqual(m[20:24], bytes((0x00, 0x00, 0xFF, 0x3F)))
         off = int.from_bytes(m[4:6], "little")
         self.assertEqual(off, 20 + 4 * 3 * 4)
         self.assertEqual(m[off:off+4], bytes((0, 0, 10, 0)))
 
-    def test_walkable_tiled_map_sets_all_recovered_exit_bits(self):
+    def test_walkable_tiled_map_sets_real_client_cell3_bits(self):
         m = make_tiled_map(4, 3, tileset_id=10, tile_flags=0x3F)
-        self.assertEqual(m[20:24], bytes((0x00, 0x3F, 0xFF, 0x80)))
         for i in range(20, 20 + 4 * 3 * 4, 4):
-            self.assertEqual(m[i + 1] & 0x3F, 0x3F)
+            self.assertEqual(m[i + 3] & 0x3F, 0x3F)
+            self.assertEqual(m[i + 1], 0)
 
     def test_map_download_block(self):
         m = make_tiled_map(4, 3, tileset_id=10)
@@ -83,14 +90,17 @@ class WorldProtocolTests(unittest.TestCase):
 
     def test_mixed_payload(self):
         map_rec = make_map_switch_record("hzwlocal00")
-        player = make_entity_record("航海者", 53, 0, 1, 10, 10)
-        npc = make_entity_record("测试向导", 54, 0, 2, 14, 10)
-        payload = join_server_parts(["<log_suc>", map_rec, player, npc, "<r>walk 1"])
+        player = make_entity_record("航海者", 53, 6, 1, 10, 10)
+        npc = make_entity_record("测试向导", 54, 2, 2, 16, 10)
+        move = make_position_record(1, 12, 10, 5)
+        payload = join_server_parts([
+            "<log_suc>", map_rec, player, npc, "<r>walk 1", move
+        ])
         self.assertTrue(payload.startswith(b"<log_suc>\n"))
         self.assertIn(map_rec, payload)
         self.assertIn(player, payload)
         self.assertIn(npc, payload)
-        self.assertTrue(payload.endswith(b"<r>walk 1\n"))
+        self.assertIn(move, payload)
 
 
 if __name__ == "__main__":
