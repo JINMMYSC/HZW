@@ -1,0 +1,31 @@
+name: V860 world protocol
+
+on:
+  push:
+    branches:
+      - main
+      - work/v860-live-world
+  pull_request:
+
+jobs:
+  protocol:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Phase 3 end-to-end world smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          python phase3_server.py --host 127.0.0.1 --tcp-port 15926 --http-port 18080 >server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          sleep 1
+          python tools/smoke_world_client.py --host 127.0.0.1 --port 15926
+          kill $SERVER_PID 2>/dev/null || true
+          wait $SERVER_PID 2>/dev/null || true
+          cat server.log

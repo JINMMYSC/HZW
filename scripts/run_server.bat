@@ -6,7 +6,8 @@ where python >nul 2>nul || (
   pause
   exit /b 1
 )
-echo Starting HZW V860 compatibility server...
+echo Starting HZW V860 Phase 3 compatibility server...
 echo TCP: 0.0.0.0:5926   HTTP: 0.0.0.0:8080
-python server.py --debug
+echo World bootstrap: map + player entity enabled
+python phase3_server.py --debug
 pause

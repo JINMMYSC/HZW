@@ -8,6 +8,6 @@
     "internal_version": "860.1HZ0000.NON5800.CT",
     "default_proxy_group": 3
   },
-  "status": "phase2-launch-and-world-bootstrap",
-  "milestone": "A-launch-original-client"
+  "status": "phase3-live-world-bootstrap",
+  "milestone": "B-enter-local-world"
 }
