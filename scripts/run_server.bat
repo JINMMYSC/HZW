@@ -5,10 +5,11 @@ title HZW V860 Compatibility Server
 chcp 65001 >nul 2>nul
 
 echo ============================================================
-echo HZW V860 Phase 5 compatibility server
+echo HZW V860 Phase 6 compatibility server
 echo TCP : 0.0.0.0:5926
 echo HTTP: 0.0.0.0:8080
-echo World: walkable d/10.tij field + player c/53 + guide c/54
+echo World: corrected cell3 walkability + type7 position sync
+echo NPC  : key 5 dialogue enabled near guide
 echo HZW terminology: Deputy / Battle Skills / Guild
 echo ============================================================
 echo.
