@@ -33,7 +33,7 @@ if not defined PY_CMD (
 echo [OK] Python launcher: %PY_CMD%
 echo [INFO] Starting two-chapter server...
 echo.
-%PY_CMD% chapter_server.py --debug
+%PY_CMD% chapter_server_v2.py --debug
 set "SERVER_EXIT=%ERRORLEVEL%"
 
 echo.
