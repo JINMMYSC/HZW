@@ -1,15 +1,16 @@
 @echo off
 setlocal EnableExtensions
 cd /d "%~dp0.."
-title HZW V860 Windmill + Marine Server
+title HZW V860 Windmill + Marine V3 Server
 chcp 65001 >nul 2>nul
 
 echo ============================================================
-echo HZW V860 - Windmill Village + Marine Base restoration
+echo HZW V860 - Windmill Village + Marine Base V3 restoration
 echo TCP : 0.0.0.0:5926
 echo HTTP: 0.0.0.0:8080
-echo World: multi-area chapter maps + original V860 resources
-echo Move : client-local smooth walk; server sync/correction only
+echo Exit : native V860 map trigger - no early server-side warp
+echo NPC  : collision interaction ids ^>= 1000 + instant key-5 list
+echo Keys : 1 personal / 3 social / 5 NPC / 7 chat / 9 quest-auto / 0 system
 echo Quest: Windmill main + Marine main + 11 Marine side quests
 echo Save : data\players\*.json
 echo HZW  : Deputy / Battle Skills / Guild
@@ -31,9 +32,9 @@ if not defined PY_CMD (
 )
 
 echo [OK] Python launcher: %PY_CMD%
-echo [INFO] Starting two-chapter server...
+echo [INFO] Starting V3 two-chapter server...
 echo.
-%PY_CMD% chapter_server_v2.py --debug
+%PY_CMD% chapter_server_v3.py --debug
 set "SERVER_EXIT=%ERRORLEVEL%"
 
 echo.
