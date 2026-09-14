@@ -62,7 +62,7 @@ def make_entity_record(
     x: int,
     y: int,
 ) -> bytes:
-    """Type 4 record: name, resource/template id, direction, object id, x, y."""
+    """Type 4 record: label, c/<template_id>.chj id, direction, object id, x, y."""
     payload = bytearray(encode_inline_string(name))
     for value in (template_id, direction, object_id, x, y):
         payload += encode_smallint(value)
@@ -80,24 +80,64 @@ def make_map_download_block(cache_key: str, map_bytes: bytes) -> bytes:
     return b"\x00\x00\x7f" + key + b"\x00" + n.to_bytes(2, "little") + map_bytes
 
 
-def make_blank_map(width: int = 24, height: int = 24) -> bytes:
-    """Minimal map accepted by the recovered V860 map parser.
-
-    This is only a bootstrap field so the original client can enter its world
-    renderer. It is not yet the original Windmill Village map.
-    """
+def _base_map_header(width: int, height: int) -> bytearray:
     if not (1 <= width <= 127 and 1 <= height <= 127):
         raise ValueError("width/height must fit positive Java byte")
     header = bytearray(20)
-    header[2] = 0
-    header[4:6] = (20).to_bytes(2, "little")
-    header[6] = 0
-    header[8:10] = (20).to_bytes(2, "little")
-    header[10] = 0
-    header[12:14] = (20).to_bytes(2, "little")
-    header[14] = 0
-    header[16:18] = (20).to_bytes(2, "little")
     header[18] = width
     header[19] = height
-    cell = bytes((0x0F, 0xFF, 0xFF, 0x00))
+    return header
+
+
+def make_blank_map(width: int = 24, height: int = 24) -> bytes:
+    """Protocol-only blank field retained as a diagnostic fixture."""
+    header = _base_map_header(width, height)
+    end = 20 + width * height * 4
+    header[2] = 0
+    header[4:6] = end.to_bytes(2, "little")
+    header[6] = 0
+    header[8:10] = end.to_bytes(2, "little")
+    header[10] = 0
+    header[12:14] = end.to_bytes(2, "little")
+    header[14] = 0
+    header[16:18] = end.to_bytes(2, "little")
+    cell = bytes((0x0F, 0xFF, 0xFF, 0x80))
     return bytes(header) + cell * (width * height)
+
+
+def make_tiled_map(
+    width: int = 24,
+    height: int = 24,
+    tileset_id: int = 10,
+    tile_flags: int = 0,
+) -> bytes:
+    """Visible bootstrap map using one JAR-bundled ``d/<id>.tij`` tileset.
+
+    Recovered V860 parser rules:
+    - map cells begin at byte 20 and are 4 bytes each;
+    - low nibble of cell[0] selects one of up to 15 map tile resources;
+    - header[2] is the number of tile resources;
+    - header[4:6] points to 4-byte tile resource descriptors;
+    - descriptor (offset=0, value=N) means load bundled ``d/N.tij``.
+
+    The secondary overlay is disabled (0xFF / high-bit flag), so this stage
+    intentionally renders only the original bundled ground tile animation.
+    """
+    if not 0 <= tileset_id <= 0xFFFF:
+        raise ValueError("tileset_id out of range")
+    header = _base_map_header(width, height)
+    cell = bytes((0x00, tile_flags & 0xFF, 0xFF, 0x80))
+    cells = cell * (width * height)
+    descriptor_offset = 20 + len(cells)
+    descriptor = b"\x00\x00" + int(tileset_id).to_bytes(2, "little")
+    section_end = descriptor_offset + len(descriptor)
+
+    header[2] = 1
+    header[4:6] = descriptor_offset.to_bytes(2, "little")
+    header[6] = 0
+    header[8:10] = section_end.to_bytes(2, "little")
+    header[10] = 0
+    header[12:14] = section_end.to_bytes(2, "little")
+    header[14] = 0
+    header[16:18] = section_end.to_bytes(2, "little")
+    return bytes(header) + cells + descriptor
