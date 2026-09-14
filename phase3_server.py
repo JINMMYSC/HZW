@@ -14,29 +14,62 @@ from world_protocol import (
     make_tiled_map,
 )
 
-LOG = logging.getLogger("hzw860.phase4")
+LOG = logging.getLogger("hzw860.phase5")
 legacy.join_server_lines = join_server_parts
 
 
-class Phase4World(legacy.CompatWorld):
-    PLAYER_TEMPLATE_ID = 53  # bundled multi-frame character strip: c/53.chj
-    GROUND_TILESET_ID = 10   # bundled sand/ground tile strip: d/10.tij
+class Phase5World(legacy.CompatWorld):
+    PLAYER_TEMPLATE_ID = 53   # bundled multi-frame character strip: c/53.chj
+    GUIDE_TEMPLATE_ID = 54    # bundled blonde character strip: c/54.chj
+    GROUND_TILESET_ID = 10    # bundled sand/ground tile strip: d/10.tij
+
+    # Exact directional commands recovered from O000O0O.O0OO0O(...)
+    TURN_COMMANDS = {
+        "#7": "UP",
+        "#10": "DOWN",
+        "#13": "LEFT",
+        "#16": "RIGHT",
+    }
+
+    # Flat-ground step commands used when the corresponding adjacent cell is passable.
+    STEP_COMMANDS = {
+        "#1": "UP",
+        "#2": "DOWN",
+        "#3": "LEFT",
+        "#4": "RIGHT",
+    }
+
+    # Slope/edge variants emitted by the original engine. Log these for later
+    # map-collision reconstruction but do not pretend their exact geometry yet.
+    SPECIAL_STEP_COMMANDS = {
+        "#5", "#6", "#8", "#9", "#11", "#12", "#14", "#15"
+    }
 
     def __init__(self, data_dir: Path):
         super().__init__(data_dir)
         self.local_map_key = "hzwlocalsj"
-        self.local_map = make_tiled_map(24, 24, tileset_id=self.GROUND_TILESET_ID)
+        # 0x3F enables every recovered movement-exit bit (1,2,4,8,16,32).
+        # Phase 4 used 0, which rendered correctly but made the field impassable.
+        self.local_map = make_tiled_map(
+            24, 24, tileset_id=self.GROUND_TILESET_ID, tile_flags=0x3F
+        )
 
     @classmethod
     def login_success_payload(cls) -> list[str | bytes]:
         return [
             "<log_suc>",
             "<title>HZW V860 本地兼容世界",
-            "<smg>登录成功，正在载入原版资源测试场…",
+            "<smg>登录成功，四向移动测试已开启…",
             make_map_switch_record("hzwlocal00"),
             make_entity_record(
                 "航海者", template_id=cls.PLAYER_TEMPLATE_ID,
                 direction=0, object_id=1, x=10, y=10,
+            ),
+            # Static reference character. If movement works, this NPC should move
+            # across the screen relative to the camera-followed player.
+            make_entity_record(
+                "测试向导", template_id=cls.GUIDE_TEMPLATE_ID,
+                direction=0, object_id=2, x=14, y=10,
             ),
             "<r>walk 1",
         ]
@@ -53,6 +86,39 @@ class Phase4World(legacy.CompatWorld):
             or cmd in {"0", "menu", "sys", "compat status", "enter world"}
         )
 
+    def _handle_move_command(self, cmd: str, state: SessionState) -> bool:
+        if cmd in self.TURN_COMMANDS:
+            direction = self.TURN_COMMANDS[cmd]
+            state.metadata["last_direction"] = direction
+            state.metadata["turn_events"] = int(state.metadata.get("turn_events", 0)) + 1
+            LOG.info(
+                "MOVE turn direction=%s cmd=%s turn_events=%s",
+                direction, cmd, state.metadata["turn_events"],
+            )
+            return True
+
+        if cmd in self.STEP_COMMANDS:
+            direction = self.STEP_COMMANDS[cmd]
+            state.metadata["last_direction"] = direction
+            state.metadata["step_events"] = int(state.metadata.get("step_events", 0)) + 1
+            LOG.info(
+                "MOVE step direction=%s cmd=%s step_events=%s",
+                direction, cmd, state.metadata["step_events"],
+            )
+            return True
+
+        if cmd in self.SPECIAL_STEP_COMMANDS:
+            state.metadata["special_step_events"] = int(
+                state.metadata.get("special_step_events", 0)
+            ) + 1
+            LOG.info(
+                "MOVE special-step cmd=%s events=%s",
+                cmd, state.metadata["special_step_events"],
+            )
+            return True
+
+        return False
+
     def handle_commands(self, commands: list[str], state: SessionState) -> list[str | bytes]:
         base_commands: list[str] = []
         responses: list[str | bytes] = []
@@ -62,7 +128,7 @@ class Phase4World(legacy.CompatWorld):
                 requested = cmd[len("#map 60"):].strip()
                 if requested == self.local_map_key:
                     LOG.info(
-                        "Serving visible bootstrap map key=%s bytes=%d tileset=d/%d.tij",
+                        "Serving walkable bootstrap map key=%s bytes=%d tileset=d/%d.tij flags=0x3F",
                         requested, len(self.local_map), self.GROUND_TILESET_ID,
                     )
                     responses.append(make_map_download_block(requested, self.local_map))
@@ -70,19 +136,30 @@ class Phase4World(legacy.CompatWorld):
                     LOG.info("Unknown map request %r", requested)
                 continue
 
-            # The common engine still uses the historical internal token 'petcmd'.
-            # In HZW the player-facing system is 副官, so never expose the old token.
+            if self._handle_move_command(cmd, state):
+                # The original client performs local movement immediately and sends
+                # these commands to the server for world synchronization. For the
+                # single-player recovery stage no echo is required.
+                continue
+
+            # Common-engine internal token. HZW player-facing terminology is 副官.
             if cmd.startswith("petcmd"):
                 LOG.info("Legacy deputy command: %r", cmd)
                 responses.append("<smg>副官系统协议恢复中")
                 continue
 
-            # Keep engine/system probes in logs only. Do not echo raw protocol names
-            # into the game UI as if they were HZW features.
+            # Real V860 client sends 'guild'; this confirms the player-facing HZW
+            # terminology is 公会, regardless of legacy shared-engine resources.
+            if cmd == "guild" or cmd.startswith("guild "):
+                LOG.info("Guild command: %r", cmd)
+                responses.append("<smg>公会系统协议恢复中")
+                continue
+
+            # Keep engine/system probes in logs only.
             if (
                 cmd.startswith("loginzhuowang")
                 or re.match(r"^\d+\s+\d+$", cmd)
-                or cmd in {"?", "#7"}
+                or cmd == "?"
                 or cmd.startswith("#maps")
                 or cmd.startswith("#chs")
             ):
@@ -99,13 +176,13 @@ class Phase4World(legacy.CompatWorld):
         return responses
 
 
-class Phase4CompatServer(legacy.HZWCompatServer):
+class Phase5CompatServer(legacy.HZWCompatServer):
     def __init__(self, host: str, tcp_port: int, http_port: int, data_dir: Path):
         super().__init__(host, tcp_port, http_port, data_dir)
-        self.world = Phase4World(data_dir)
+        self.world = Phase5World(data_dir)
 
 
-legacy.HZWCompatServer = Phase4CompatServer
+legacy.HZWCompatServer = Phase5CompatServer
 
 if __name__ == "__main__":
     legacy.main()
