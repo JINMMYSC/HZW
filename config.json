@@ -1,0 +1,13 @@
+{
+  "listen": {
+    "tcp": 5926,
+    "http": 8080
+  },
+  "client": {
+    "version": "8.60.0",
+    "internal_version": "860.1HZ0000.NON5800.CT",
+    "default_proxy_group": 3
+  },
+  "status": "phase2-launch-and-world-bootstrap",
+  "milestone": "A-launch-original-client"
+}
