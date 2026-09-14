@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import py_compile
 import shutil
 import sys
 from pathlib import Path
@@ -10,18 +11,59 @@ from tools.patch_client import patch_jar
 
 ROOT = Path(__file__).resolve().parents[1]
 SERVER_FILES = [
-    "server.py", "hzw_protocol.py", "world_protocol.py", "chapter_engine.py",
-    "chapter_server.py", "chapter_server_v2.py",
+    "server.py",
+    "hzw_protocol.py",
+    "world_protocol.py",
+    "chapter_engine.py",
+    "chapter_maps.py",
+    "chapter_server.py",
+    "chapter_server_v2.py",
 ]
 
 
 def copy_server(dst: Path) -> None:
     dst.mkdir(parents=True, exist_ok=True)
     for name in SERVER_FILES:
-        shutil.copy2(ROOT / name, dst / name)
+        src = ROOT / name
+        if not src.exists():
+            raise RuntimeError(f"required server module missing from source tree: {src}")
+        shutil.copy2(src, dst / name)
     (dst / "content").mkdir(exist_ok=True)
-    shutil.copy2(ROOT / "content" / "windmill_marine.json", dst / "content" / "windmill_marine.json")
+    content_src = ROOT / "content" / "windmill_marine.json"
+    if not content_src.exists():
+        raise RuntimeError(f"required content database missing: {content_src}")
+    shutil.copy2(content_src, dst / "content" / "windmill_marine.json")
     (dst / "data").mkdir(exist_ok=True)
+
+
+def validate_server_package(dst: Path) -> None:
+    required = [dst / name for name in SERVER_FILES]
+    required.append(dst / "content" / "windmill_marine.json")
+    missing = [str(path) for path in required if not path.exists()]
+    if missing:
+        raise RuntimeError("package validation failed; missing files: " + ", ".join(missing))
+
+    # Compile the exact copied files so a generated ZIP cannot contain an
+    # import/syntax surprise that was hidden by the source-tree environment.
+    for name in SERVER_FILES:
+        py_compile.compile(str(dst / name), doraise=True)
+
+    # Import the actual entry point from the generated package directory.
+    old_path = list(sys.path)
+    old_modules = {name: sys.modules.pop(name, None) for name in (
+        "server", "hzw_protocol", "world_protocol", "chapter_engine",
+        "chapter_maps", "chapter_server", "chapter_server_v2",
+    )}
+    try:
+        sys.path.insert(0, str(dst))
+        __import__("chapter_server_v2")
+    finally:
+        sys.path[:] = old_path
+        for name in list(old_modules):
+            sys.modules.pop(name, None)
+        for name, module in old_modules.items():
+            if module is not None:
+                sys.modules[name] = module
 
 
 def write_launchers(dst: Path, jar_name: str) -> None:
@@ -36,7 +78,11 @@ def write_launchers(dst: Path, jar_name: str) -> None:
         "if not defined PY (echo [ERROR] Python 3 not found.& pause & exit /b 1)\r\n"
         "echo HZW V860 - Windmill Village + Marine Base server\r\n"
         "%PY% chapter_server_v2.py --debug\r\n"
-        "pause\r\n",
+        "set \"EC=%ERRORLEVEL%\"\r\n"
+        "echo.\r\n"
+        "if not \"%EC%\"==\"0\" echo [ERROR] Server exited with code %EC%.\r\n"
+        "pause\r\n"
+        "exit /b %EC%\r\n",
         encoding="utf-8",
     )
     (dst / "README_先看我.txt").write_text(
@@ -61,12 +107,15 @@ def main() -> int:
     if not src.exists():
         raise SystemExit(f"JAR not found: {src}")
     out = args.out.resolve()
-    if out.exists(): shutil.rmtree(out)
+    if out.exists():
+        shutil.rmtree(out)
     copy_server(out)
     patched = out / "HZW-V860-风车镇-海军基地.jar"
     patch_jar(src, patched, 3, args.host, 5926, args.host, 8080)
     write_launchers(out, patched.name)
+    validate_server_package(out)
     archive = shutil.make_archive(str(out), "zip", root_dir=out.parent, base_dir=out.name)
+    print("[OK] package validation passed")
     print(f"package folder: {out}")
     print(f"package zip   : {archive}")
     return 0
