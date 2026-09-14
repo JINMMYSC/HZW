@@ -12,23 +12,27 @@ It is intended for preservation/interoperability testing while the original prot
 - confirmed client socket LCG/rotated-length decoder
 - cid checksum and `sn` tracking
 - initial `CONNECT` + `kawa` bootstrap handling
-- basic account/login/message/menu test responses
-- compatibility title/menu screen after successful login
+- basic account/login/message responses
+- recovered binary world bootstrap after successful login
+- type-1 map switch + marker-127 map download
+- type-4 local player entity + `<r>walk1` selector
 - protocol smoke client for end-to-end TCP verification
 - Windows one-click run/test/patch scripts
 - detailed protocol logging
 - JAR `csys/list.dat` patcher to redirect proxy group #3 to your server
 - V860 resource extractor
 
-Gameplay/map/battle behavior is intentionally **not fabricated** yet; those handlers will be added as their exact formats are recovered from the client.
+Phase 3 includes a minimal protocol-bootstrap map so the original world renderer can be exercised. It is not yet the original Windmill Village; NPC, original map content, collision semantics and battle remain under recovery.
 
 ## Run
 
 Python 3.10+; no third-party packages are required.
 
 ```bash
-python server.py --debug
+python phase3_server.py --debug
 ```
+
+On Windows, double-click `scripts\\run_server.bat`.
 
 This listens on:
 
@@ -55,10 +59,13 @@ The patcher changes only proxy group **#3**, which is the group referenced by th
 python -m unittest discover -s tests -v
 ```
 
+The Phase-3 end-to-end smoke path should finish with `SMOKE_WORLD_OK`.
+
 ## Status
 
-This is an **alpha protocol harness**, not a completed recreation of the original backend. The framing code is based on direct bytecode analysis of the V860 client; gameplay handlers are placeholders until their parameters are documented.
+This remains an **alpha compatibility server**, but the real V860 client has already verified the Phase-2 transport/login path. Phase 3 now exercises the recovered world/map binary path with a minimal local field and a player entity using the client's bundled `c/14.chj` resource.
 
-## Phase 2 runbook
+## Runbooks
 
-See `docs/PHASE2_RUN_V860.md` for the original-client launch milestone and Windows/LAN test flow.
+- `docs/PHASE2_RUN_V860.md` — original-client launch/login baseline.
+- `docs/PHASE3_WORLD_BOOTSTRAP.md` — map/player world-entry test.
