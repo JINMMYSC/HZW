@@ -65,8 +65,8 @@ def main() -> int:
             raise RuntimeError("world bootstrap missing type-1 map switch")
         if make_entity_record("player", 14, 0, 1, 10, 10) not in second:
             raise RuntimeError("world bootstrap missing type-4 player")
-        if b"<r>walk1\n" not in second:
-            raise RuntimeError("world bootstrap missing player selector")
+        if b"<r>walk 1\n" not in second:
+            raise RuntimeError("world bootstrap missing parser-compatible player selector")
         print("LOGIN_WORLD_BOOTSTRAP_OK")
 
         send_client_frame(s, state, ack2, "#map 60hzwlocalsj\n")

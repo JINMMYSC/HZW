@@ -30,6 +30,9 @@ class Phase3World(legacy.CompatWorld):
     def login_success_payload() -> list[str | bytes]:
         # Type-1 map switch makes V860 request '#map 60hzwlocalsj'. The entity
         # and walk records stay queued until the map is installed by the client.
+        # V860 parses the walk target from substring(8): '<r>walk' is 7 chars,
+        # so byte/char 7 must be a separator. '<r>walk1' yields an empty string
+        # and the real client reports NumberFormatException. Use a space.
         return [
             "<log_suc>",
             "<title>HZW V860 本地兼容世界",
@@ -38,7 +41,7 @@ class Phase3World(legacy.CompatWorld):
             make_entity_record(
                 "player", template_id=14, direction=0, object_id=1, x=10, y=10
             ),
-            "<r>walk1",
+            "<r>walk 1",
         ]
 
     def handle_commands(self, commands: list[str], state: SessionState) -> list[str | bytes]:
