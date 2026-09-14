@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Iterable
 
 
 @dataclass(frozen=True)
@@ -84,7 +85,6 @@ def _choose(style: MapStyle, x: int, y: int, w: int, h: int) -> tuple[int, int]:
         if (x + y) % 13 == 0 and len(style.tilesets) > 2:
             return 2, (x * 2 + y) & 15
         return 0, (x + y * 2) & 15
-    # road/default: cross-shaped road plus original grass/edge accents.
     if abs(x - cx) <= 1 or abs(y - cy) <= 1:
         return min(2, len(style.tilesets)-1), (x + y) & 15
     if (x + 3*y) % 17 == 0 and len(style.tilesets) > 1:
@@ -92,33 +92,61 @@ def _choose(style: MapStyle, x: int, y: int, w: int, h: int) -> tuple[int, int]:
     return 0, (x * 3 + y) & 15
 
 
-def make_chapter_map(area_id: str, width: int = 24, height: int = 24) -> bytes:
-    """Build a reconstructed V860 area from original bundled d/*.tij resources.
+def make_chapter_map(
+    area_id: str,
+    width: int = 24,
+    height: int = 24,
+    triggers: Iterable[tuple[int, int, int]] | None = None,
+) -> bytes:
+    """Build one reconstructed V860 area from bundled d/*.tij artwork.
 
-    The map geometry is reconstructed; the tile artwork itself is the original V860
-    client artwork. Normal cells stay walkable so the original client performs its
-    own continuous walking animation.
+    ``triggers`` are native V860 map trigger records in the form
+    ``(tile_x, tile_y, trigger_id)``.  The original client parses these from
+    header byte 14 and the offset stored in header[16:18].  Trigger ids
+    1001..3999 are unconditional map/event triggers; when the player stands on
+    that tile and moves again the client sends ``t l<ID>`` to the server.
+
+    Using these records is important: area changes now happen from the same
+    client-side mechanism as the original game instead of guessing from server
+    coordinates before the character visually reaches an exit.
     """
     style = STYLES.get(area_id, MapStyle((10,), "road"))
+    trigger_list = list(triggers or [])
+    if len(trigger_list) > 255:
+        raise ValueError("too many V860 map triggers")
+
     header = bytearray(20)
     header[18] = width
     header[19] = height
+
     cells = bytearray()
     for y in range(height):
         for x in range(width):
             slot, frame = _choose(style, x, y, width, height)
             cells += _cell(slot, frame)
+
     descriptor_offset = 20 + len(cells)
     descriptors = bytearray()
     for tid in style.tilesets:
         descriptors += b"\x00\x00" + int(tid).to_bytes(2, "little")
-    section_end = descriptor_offset + len(descriptors)
+    descriptor_end = descriptor_offset + len(descriptors)
+
+    trigger_bytes = bytearray()
+    for x, y, trigger_id in trigger_list:
+        if not (0 <= x < width and 0 <= y < height):
+            raise ValueError(f"trigger outside map: {(x, y)}")
+        if not (1001 <= int(trigger_id) <= 0xFFFF):
+            raise ValueError(f"invalid V860 trigger id: {trigger_id}")
+        trigger_bytes += bytes((x & 0xFF, y & 0xFF))
+        trigger_bytes += int(trigger_id).to_bytes(2, "little")
+
     header[2] = len(style.tilesets)
     header[4:6] = descriptor_offset.to_bytes(2, "little")
     header[6] = 0
-    header[8:10] = section_end.to_bytes(2, "little")
+    header[8:10] = descriptor_end.to_bytes(2, "little")
     header[10] = 0
-    header[12:14] = section_end.to_bytes(2, "little")
-    header[14] = 0
-    header[16:18] = section_end.to_bytes(2, "little")
-    return bytes(header) + bytes(cells) + bytes(descriptors)
+    header[12:14] = descriptor_end.to_bytes(2, "little")
+    header[14] = len(trigger_list)
+    header[16:18] = descriptor_end.to_bytes(2, "little")
+
+    return bytes(header) + bytes(cells) + bytes(descriptors) + bytes(trigger_bytes)
