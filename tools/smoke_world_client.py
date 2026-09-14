@@ -37,7 +37,7 @@ def send_client_frame(sock: socket.socket, state: SessionState, ack4: bytes, tex
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="V860 Phase-3 world bootstrap smoke client")
+    ap = argparse.ArgumentParser(description="V860 Phase-4 visible world smoke client")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=5926)
     ap.add_argument("--timeout", type=float, default=5.0)
@@ -63,11 +63,11 @@ def main() -> int:
             raise RuntimeError("world bootstrap missing <log_suc>")
         if make_map_switch_record("hzwlocal00") not in second:
             raise RuntimeError("world bootstrap missing type-1 map switch")
-        if make_entity_record("player", 14, 0, 1, 10, 10) not in second:
-            raise RuntimeError("world bootstrap missing type-4 player")
+        if make_entity_record("航海者", 53, 0, 1, 10, 10) not in second:
+            raise RuntimeError("world bootstrap missing visible player sprite template")
         if b"<r>walk 1\n" not in second:
             raise RuntimeError("world bootstrap missing parser-compatible player selector")
-        print("LOGIN_WORLD_BOOTSTRAP_OK")
+        print("LOGIN_VISIBLE_WORLD_BOOTSTRAP_OK")
 
         send_client_frame(s, state, ack2, "#map 60hzwlocalsj\n")
         _ack3, third = recv_server_frame(s)
@@ -81,8 +81,15 @@ def main() -> int:
             raise RuntimeError("invalid map download payload")
         if map_bytes[18:20] != bytes((24, 24)):
             raise RuntimeError("wrong bootstrap map dimensions")
-        print(f"MAP_DOWNLOAD_OK key={key} bytes={map_len} size=24x24")
-        print("SMOKE_WORLD_OK")
+        if map_bytes[2] != 1:
+            raise RuntimeError("visible map missing bundled tileset descriptor")
+        descriptor_offset = int.from_bytes(map_bytes[4:6], "little")
+        if map_bytes[descriptor_offset:descriptor_offset + 4] != bytes((0, 0, 10, 0)):
+            raise RuntimeError("visible map is not wired to d/10.tij")
+        if (map_bytes[20] & 0x0F) != 0:
+            raise RuntimeError("first map cell does not select tile resource slot 0")
+        print(f"VISIBLE_MAP_DOWNLOAD_OK key={key} bytes={map_len} size=24x24 tileset=d/10.tij")
+        print("SMOKE_VISIBLE_WORLD_OK")
     return 0
 
 
