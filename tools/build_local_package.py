@@ -10,7 +10,8 @@ from tools.patch_client import patch_jar
 
 ROOT = Path(__file__).resolve().parents[1]
 SERVER_FILES = [
-    "server.py", "hzw_protocol.py", "world_protocol.py", "chapter_engine.py", "chapter_server.py"
+    "server.py", "hzw_protocol.py", "world_protocol.py", "chapter_engine.py",
+    "chapter_server.py", "chapter_server_v2.py",
 ]
 
 
@@ -34,7 +35,7 @@ def write_launchers(dst: Path, jar_name: str) -> None:
         "if not defined PY py -3 -c \"import sys\" >nul 2>nul && set \"PY=py -3\"\r\n"
         "if not defined PY (echo [ERROR] Python 3 not found.& pause & exit /b 1)\r\n"
         "echo HZW V860 - Windmill Village + Marine Base server\r\n"
-        "%PY% chapter_server.py --debug\r\n"
+        "%PY% chapter_server_v2.py --debug\r\n"
         "pause\r\n",
         encoding="utf-8",
     )
@@ -43,7 +44,8 @@ def write_launchers(dst: Path, jar_name: str) -> None:
         "1. 双击 启动服务器.bat。\n"
         f"2. 保持服务器窗口开启，用手机顽童打开 {jar_name}。\n"
         "3. 虚拟屏幕使用 360x360。\n"
-        "4. 角色/任务/物品存档位于 data\\players。\n\n"
+        "4. 角色/任务/物品存档位于 data\\players。\n"
+        "5. 普通走路由原V860客户端本地动画完成，服务器维护权威坐标。\n\n"
         "说明：此包由你本地提供的原 V860 JAR 生成，不在仓库重新分发原游戏 JAR。\n",
         encoding="utf-8",
     )
