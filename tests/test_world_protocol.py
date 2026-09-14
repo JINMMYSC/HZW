@@ -54,14 +54,20 @@ class WorldProtocolTests(unittest.TestCase):
         self.assertEqual(n, len(m))
         self.assertEqual(block[zero + 3:zero + 3 + n], m)
 
+    def test_walk_selector_matches_real_client_parser(self):
+        cmd = "<r>walk 1"
+        self.assertTrue(cmd.startswith("<r>walk"))
+        self.assertEqual(cmd[7], " ")
+        self.assertEqual(int(cmd[8:]), 1)
+
     def test_mixed_payload(self):
         map_rec = make_map_switch_record("hzwlocal00")
         ent_rec = make_entity_record("player", 14, 0, 1, 10, 10)
-        payload = join_server_parts(["<log_suc>", map_rec, ent_rec, "<r>walk1"])
+        payload = join_server_parts(["<log_suc>", map_rec, ent_rec, "<r>walk 1"])
         self.assertTrue(payload.startswith(b"<log_suc>\n"))
         self.assertIn(map_rec, payload)
         self.assertIn(ent_rec, payload)
-        self.assertTrue(payload.endswith(b"<r>walk1\n"))
+        self.assertTrue(payload.endswith(b"<r>walk 1\n"))
 
 
 if __name__ == "__main__":
