@@ -22,7 +22,8 @@ set "EC=%ERRORLEVEL%"
 if not "%EC%"=="0" (
   echo [ERROR] Package build failed with code %EC%.
 ) else (
-  echo [OK] Package created under dist\HZW-V860-Windmill-Marine
+  echo [OK] V5 full campaign package created under dist\HZW-V860-Full-Restore
+  echo [OK] Open HZW-V860-Full-Restore and run 启动服务器.bat
 )
 pause
 exit /b %EC%
