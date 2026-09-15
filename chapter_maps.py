@@ -10,6 +10,7 @@ class MapStyle:
     mode: str = "road"
 
 
+# Explicit opening maps that have already been exercised in the real V860 client.
 STYLES: dict[str, MapStyle] = {
     "wm_ship": MapStyle((7, 19), "ship"),
     "wm_road": MapStyle((10, 1, 28), "road"),
@@ -42,6 +43,52 @@ STYLES: dict[str, MapStyle] = {
     "mb_dawang": MapStyle((10, 28, 19), "coast"),
     "mb_forest": MapStyle((1, 15, 10), "forest"),
 }
+
+
+# Later maps use only artwork already bundled in the V860 JAR.  The service-side
+# original map binaries have not survived, so this table reconstructs scene
+# categories rather than pretending to know the original per-tile geometry.
+PREFIX_DEFAULTS: dict[str, MapStyle] = {
+    "or_": MapStyle((10, 28, 1), "road"),
+    "ju_": MapStyle((10, 1, 7), "road"),
+    "lo_": MapStyle((10, 28, 29), "road"),
+    "sr_": MapStyle((7, 29, 19), "interior"),
+    "ca_": MapStyle((28, 10, 19), "coast"),
+    "lg_": MapStyle((1, 10, 15), "forest"),
+    "bt_": MapStyle((29, 1, 7), "cave"),
+    "wi_": MapStyle((15, 19, 29), "forest"),
+    "fo_": MapStyle((1, 29, 10), "forest"),
+    "be_": MapStyle((10, 1, 15), "road"),
+    "sm_": MapStyle((10, 25, 29), "square"),
+}
+
+
+def _style_for_area(area_id: str) -> MapStyle:
+    explicit = STYLES.get(area_id)
+    if explicit is not None:
+        return explicit
+
+    # Semantic refinements for the reconstructed later campaign.
+    lower = area_id.lower()
+    if any(token in lower for token in ("sea", "coast", "spring", "lake", "pool", "ghost")):
+        return MapStyle((19, 28, 12), "water" if "sea" in lower or "lake" in lower else "coast")
+    if any(token in lower for token in ("port", "beach")):
+        return MapStyle((28, 10, 19), "port")
+    if any(token in lower for token in ("cave", "cellar", "warehouse", "prison", "dungeon", "coldstore")):
+        return MapStyle((29, 21, 7), "cave")
+    if any(token in lower for token in ("bar", "clinic", "house", "mansion", "doctor", "shop", "palace", "alchemy", "lab", "kitchen", "bedroom", "upper", "captain")):
+        return MapStyle((7, 29, 25), "interior")
+    if any(token in lower for token in ("forest", "woods", "mountain", "highland", "volcano", "snow", "herb", "lavender", "maze", "fork")):
+        return MapStyle((1, 15, 10), "forest")
+    if any(token in lower for token in ("temple", "church", "miracle")):
+        return MapStyle((25, 29, 10), "temple")
+    if any(token in lower for token in ("square", "town", "village", "city", "resort", "training", "knight")):
+        return MapStyle((10, 28, 1), "square")
+
+    for prefix, style in PREFIX_DEFAULTS.items():
+        if lower.startswith(prefix):
+            return style
+    return MapStyle((10, 1, 28), "road")
 
 
 def _cell(slot: int, frame: int, walk: int = 0x3F) -> bytes:
@@ -98,19 +145,16 @@ def make_chapter_map(
     height: int = 24,
     triggers: Iterable[tuple[int, int, int]] | None = None,
 ) -> bytes:
-    """Build one reconstructed V860 area from bundled d/*.tij artwork.
+    """Build a reconstructed V860 area from original bundled ``d/*.tij`` art.
 
-    ``triggers`` are native V860 map trigger records in the form
-    ``(tile_x, tile_y, trigger_id)``.  The original client parses these from
-    header byte 14 and the offset stored in header[16:18].  Trigger ids
-    1001..3999 are unconditional map/event triggers; when the player stands on
-    that tile and moves again the client sends ``t l<ID>`` to the server.
+    ``triggers`` are original-format V860 map triggers ``(tile_x, tile_y, id)``.
+    Area changes happen only when the client reaches that trigger tile and emits
+    ``t l<ID>``; movement coordinates alone never cause an early map switch.
 
-    Using these records is important: area changes now happen from the same
-    client-side mechanism as the original game instead of guessing from server
-    coordinates before the character visually reaches an exit.
+    The artwork is original-client material.  Later service-side map geometry is
+    reconstructed because the historical server map binaries have not surfaced.
     """
-    style = STYLES.get(area_id, MapStyle((10,), "road"))
+    style = _style_for_area(area_id)
     trigger_list = list(triggers or [])
     if len(trigger_list) > 255:
         raise ValueError("too many V860 map triggers")
