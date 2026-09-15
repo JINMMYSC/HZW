@@ -26,11 +26,25 @@ class FullCampaignWorldV5(WindmillMarineWorldV4):
         manifest = CONTENT_ROOT / "full_campaign_manifest.json"
         self.campaign_manifest = json.loads(manifest.read_text("utf-8")) if manifest.exists() else {}
 
+    def _door_specs(self, area_id: str):
+        """Opening hard-coded doors + later chapter doors from content data."""
+        specs = list(super()._door_specs(area_id))
+        for door in self.chapter.area(area_id).get("doors") or []:
+            specs.append((
+                str(door.get("label") or "入口"),
+                str(door["target"]),
+                int(door.get("x", 12)),
+                int(door.get("y", 8)),
+                None if door.get("dest_x") is None else int(door["dest_x"]),
+                None if door.get("dest_y") is None else int(door["dest_y"]),
+            ))
+        return specs
+
     def _auto_script(self, p, event_source: str):
         """Generic static-item restoration for later chapter packs.
 
         Surviving walkthroughs often say an item is taken from a room/object rather
-        than dropped by a monster.  Chapter data can mark that collect step with
+        than dropped by a monster. Chapter data can mark that collect step with
         source_area/source_npc, keeping this reconstruction explicit and data-driven.
         """
         messages = list(super()._auto_script(p, event_source))
@@ -70,8 +84,8 @@ class FullCampaignWorldV5(WindmillMarineWorldV4):
         missing = [qid for qid in required if qid not in p.completed_quests]
         if missing:
             return ["<smg>当前主线尚未推进到这个区域。"]
-        # Level gates are retained in data for parity but are advisory until the
-        # full original repeatable/grind economy is calibrated.
+        # Level gates stay advisory until the original repeatable/grind economy is
+        # recovered. We do not invent a fake exact 1-73 experience curve.
         return super()._native_portal(p, state, trigger_id)
 
     def _full_world_map(self, p):
