@@ -22,6 +22,8 @@ SERVER_FILES = [
     "chapter_server_v4.py",
     "campaign_engine.py",
     "chapter_server_v5.py",
+    "system_engine.py",
+    "chapter_server_v6.py",
 ]
 
 
@@ -45,18 +47,29 @@ def copy_server(dst: Path) -> None:
     if chapter_src.exists():
         shutil.copytree(chapter_src, chapter_dst, dirs_exist_ok=True)
 
+    systems_src = ROOT / "content" / "systems"
+    systems_dst = content_dst / "systems"
+    if systems_src.exists():
+        shutil.copytree(systems_src, systems_dst, dirs_exist_ok=True)
+
     required_content = content_dst / "windmill_marine.json"
+    required_systems = systems_dst / "v860_systems.json"
     if not required_content.exists():
         raise RuntimeError(f"required content database missing: {required_content}")
     if not chapter_dst.exists() or not any(chapter_dst.glob("*.json")):
         raise RuntimeError("full campaign package has no content/chapters/*.json files")
+    if not required_systems.exists():
+        raise RuntimeError(f"V860 system catalog missing: {required_systems}")
     (dst / "data").mkdir(exist_ok=True)
 
 
 def validate_server_package(dst: Path) -> None:
     required = [dst / name for name in SERVER_FILES]
-    required.append(dst / "content" / "windmill_marine.json")
-    required.append(dst / "content" / "full_campaign_manifest.json")
+    required.extend([
+        dst / "content" / "windmill_marine.json",
+        dst / "content" / "full_campaign_manifest.json",
+        dst / "content" / "systems" / "v860_systems.json",
+    ])
     missing = [str(path) for path in required if not path.exists()]
     if missing:
         raise RuntimeError("package validation failed; missing files: " + ", ".join(missing))
@@ -73,16 +86,30 @@ def validate_server_package(dst: Path) -> None:
     old_modules = {name: sys.modules.pop(name, None) for name in module_names}
     try:
         sys.path.insert(0, str(dst))
-        mod = __import__("chapter_server_v5")
-        world_cls = getattr(mod, "FullCampaignWorldV5")
+        mod = __import__("chapter_server_v6")
+        world_cls = getattr(mod, "EvidenceFullWorldV6")
         world = world_cls(dst / "data")
-        # Validate the generated package, not the source tree: all recovered main
-        # chapters should be present and a later-world native portal must exist.
-        for qid in ("or_main", "ju_main", "lo_main", "sr_mainq", "lg_main", "bt_main", "wi_main", "fo_main", "be_main", "sm_main"):
+
+        for qid in (
+            "or_main", "ju_main", "lo_main", "sr_mainq", "lg_main", "bt_main",
+            "wi_main", "fo_main", "be_main", "sm_main",
+        ):
             if qid not in world.chapter.quests:
                 raise RuntimeError(f"generated package missing quest {qid}")
         if "be_port" not in world.chapter.areas or "sm_port" not in world.chapter.areas:
             raise RuntimeError("generated package missing late campaign areas")
+
+        catalog = world.systems.catalog
+        if not catalog["deputies"]["hunter"]["enabled"]:
+            raise RuntimeError("V860 direct deputy 追猎者 missing/disabled")
+        direct_mounts = {
+            spec["name"] for spec in catalog["mounts"].values()
+            if spec.get("evidence") == "V860_DIRECT_CONFIRMED"
+        }
+        if not {"雷象", "剑齿兽"}.issubset(direct_mounts):
+            raise RuntimeError("V860 direct mounts missing from generated package")
+        if catalog["features"]["divine_forge"].get("enabled"):
+            raise RuntimeError("POST_V860 divine forge must not be enabled in V860 profile")
     finally:
         sys.path[:] = old_path
         for name in module_names:
@@ -102,10 +129,11 @@ def write_launchers(dst: Path, jar_name: str) -> None:
         "python -c \"import sys\" >nul 2>nul && set \"PY=python\"\r\n"
         "if not defined PY py -3 -c \"import sys\" >nul 2>nul && set \"PY=py -3\"\r\n"
         "if not defined PY (echo [ERROR] Python 3 not found.& pause & exit /b 1)\r\n"
-        "echo HZW V860 - V5 full recovered campaign server\r\n"
-        "echo Native exits / reciprocal doors / collision interaction / original keypad menus\r\n"
+        "echo HZW V860 - V6 evidence-backed full restoration server\r\n"
+        "echo Native exits / collision interaction / original keypad menus\r\n"
         "echo Campaign: Windmill through Beast Island + Star Moon branch\r\n"
-        "%PY% chapter_server_v5.py --debug\r\n"
+        "echo Systems : profession / deputy / ship / mount / artifact evidence profiles\r\n"
+        "%PY% chapter_server_v6.py --debug\r\n"
         "set \"EC=%ERRORLEVEL%\"\r\n"
         "echo.\r\n"
         "if not \"%EC%\"==\"0\" echo [ERROR] Server exited with code %EC%.\r\n"
@@ -114,22 +142,24 @@ def write_launchers(dst: Path, jar_name: str) -> None:
         encoding="utf-8",
     )
     (dst / "README_先看我.txt").write_text(
-        "HZW V860 全章节复原包 V5\n\n"
+        "HZW V860 全章节复原包 V6\n\n"
         "1. 双击 启动服务器.bat。\n"
         f"2. 保持服务器窗口开启，用手机顽童打开 {jar_name}。\n"
         "3. 虚拟屏幕使用 360x360。\n"
-        "4. 角色/任务/物品存档位于 data\\players。\n"
+        "4. 剧情/物品存档位于 data\\players；职业/副官/船只/坐骑状态位于 data\\systems。\n"
         "5. 地图出口采用原V860地图触发点，不按服务器坐标提前过图。\n"
         "6. 撞NPC自动交互；5键优先即时确认邻近目标；室内有双向返回入口。\n"
         "7. 1/3/5/7/9/0与个人/系统菜单按原客户端命令接入；*和#保留客户端本地功能。\n"
-        "8. 当前已录入：风车镇、海军基地、橘子岛、果汁村、洛克岛、海上餐厅、仙人掌岛桥接、小花园、蝙蝠岛、冬之岛、幽忘岛、巨兽岛、星月岛。\n"
-        "9. 原服务端逐字对白/逐格地图未全部存世；缺失处按同时代攻略重建并保留证据说明。\n",
+        "8. 章节数据：风车镇、海军基地、橘子岛、果汁村、洛克岛、海上餐厅、仙人掌岛桥接、小花园、蝙蝠岛、冬之岛、幽忘岛、巨兽岛、星月岛。\n"
+        "9. V860直接系统：追猎者、雷象、剑齿兽、法宝融合；未知获取/数值不会伪造。\n"
+        "10. 2012-11神铸/天神等原服后续系统保留资料但默认不回填V860。\n"
+        "11. 原服务端逐字对白/逐格地图未全部存世；缺失处按同期攻略重建并保留证据等级。\n",
         encoding="utf-8",
     )
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Build local HZW V860 full-campaign V5 package")
+    ap = argparse.ArgumentParser(description="Build local HZW V860 evidence-backed V6 package")
     ap.add_argument("jar", type=Path, help="your original V860 JAR")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--out", type=Path, default=Path("dist/HZW-V860-Full-Restore"))
@@ -146,7 +176,7 @@ def main() -> int:
     write_launchers(out, patched.name)
     validate_server_package(out)
     archive = shutil.make_archive(str(out), "zip", root_dir=out.parent, base_dir=out.name)
-    print("[OK] V5 full-campaign package validation passed")
+    print("[OK] V6 evidence-backed full package validation passed")
     print(f"package folder: {out}")
     print(f"package zip   : {archive}")
     return 0
