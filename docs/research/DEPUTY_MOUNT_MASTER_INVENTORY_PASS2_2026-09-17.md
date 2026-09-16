@@ -91,16 +91,83 @@
 - 首次加入时间未知
 - 分类：POST_V860 / NEEDS_VERSION_PINNING
 
-## F. 当前可证实的副官名称总数
+## F. 2013 原服直接证实：副官系统已大幅扩展
 
-目前可靠命名至少 10 个：
-桃子、萌萌、兰迪、初级女海盗、初级男海盗、黄金军神、刀魂战士、追猎者、龙血剑豪、美杜莎。
+来源：QJTYW 海贼论坛保存的 2013-06-05《6月6日更新内容》（bbs-9925）。
 
-其中 V860 前/当期已直接证实至少前 8 个；龙血剑豪为 V860 后 55 天附近版本；美杜莎只确认后期。
+### 11. 龙枪统帅
+2013-06-06 活动消费榜第一名奖励“龙枪统帅契约礼包”，正文明确称“最新副官‘龙枪统帅’”。
 
-“10个”不是宣称全游戏最终只有10个；仍需继续从 2009-2012 公告、QJTYW 索引、JAR strings、录像中发现遗漏名称。
+原资料同时给出技能机制：
+- 真龙盾刺：受到物理伤害时反弹伤害，数值与自身力量×系数有关；
+- 圣翼转生：死亡回合结束时自动复活并回复一定生命，一场战斗最多触发由系数决定的次数。
 
-## G. 坐骑
+分类：ORIGINAL_SERVER_CONFIRMED_2013 / POST_V860。
+
+### 2013 副官技能传承系统
+同一更新直接确认：
+- 仅二阶以上副官可使用技能传承；
+- 技能传承随机替换一个未锁定技能；
+- 传承卷等级：F / E / D / C / B / A / S / SS / Z；
+- 同等级传承卷可合成高一级；
+- A级及以上可交易；
+- SS、Z有概率直接增加技能栏，Z概率高于SS；
+- 同名技能不能重复传承；
+- 同一副官只能学习一种复活类技能和一种自动回血类技能；
+- 任命中或守护中的副官不能传承；
+- 传承技能在副官转职、转生后保留；
+- 使用副官技能卡会刷新未锁定技能；
+- 传承盒随机获得传承卷；七海龙魂宝箱可出C/D级传承盒；龙魂碎片可兑换A级传承盒。
+
+这组规则说明副官数据模型至少还需要：tier、lockedSkillSlots、inheritedSkills、inheritanceGrade、appointed/guarding状态、rebirth、classChange、reviveSkillConstraint、autoHealSkillConstraint。
+
+## G. 玩家回忆高优先级候选（不得回填 V860）
+
+### 圣骑士
+百度知道 2018 年寻访同一款诺基亚“大型网游海贼王”的回答出现：“以前的圣骑士副官 飞毯等等的太多了”；同页另有回答明确指向“92le随手互动官网”。
+分类：SAME_GAME_HIGH_PROBABILITY / PLAYER_MEMORY / VERSION_UNKNOWN。
+
+### 飞毯
+与“圣骑士副官”出现在同一玩家回忆中，是当前最强的旧坐骑候选之一；但尚未找到同期官方公告/JAR/同期攻略二次确认。
+分类：MOUNT_LEAD / PLAYER_MEMORY / VERSION_UNKNOWN。
+
+### 用户提供、等待独立证据的副官名称
+- 忍者
+- 鸣人
+- 金刚狼
+
+当前全网精确组合搜索尚未找到可独立验证这三个名称属于随手互动《海贼王》的同期页面。由于“鸣人/忍者/金刚狼”在其他游戏和动漫页面噪声极高，现阶段只能标：USER_PROVIDED_LEAD / HIGH_PRIORITY_VERIFICATION。
+
+验证时必须寻找：贴吧原帖/玩家截图、92le旧页、QJTYW旧帖、活动奖励表、JAR strings/图片资源、琴酒或其他同游戏录像。不得拿其他火影/漫威/海贼王游戏结果充证。
+
+## H. 当前命名副官清单（分证据层）
+
+同期/原服网页直接证实：
+1. 桃子
+2. 萌萌
+3. 兰迪
+4. 初级女海盗
+5. 初级男海盗
+6. 黄金军神
+7. 刀魂战士
+8. 追猎者（V860）
+9. 龙血剑豪（2012-09-25）
+10. 龙枪统帅（2013-06-06）
+
+后期同游戏视频直接证实：
+11. 美杜莎
+
+高概率玩家回忆：
+12. 圣骑士
+
+待独立验证：
+13. 忍者
+14. 鸣人
+15. 金刚狼
+
+另有贴吧残片“副官幺蛾子”，但“幺蛾子”究竟是正式名称、昵称、俗称还是语句粘连尚未确定，单列 NEEDS_CONTEXT，不计入正式命名总数。
+
+## I. 坐骑
 
 ### V860 直接证实
 1. 雷象
@@ -112,13 +179,15 @@ QJTYW V860 2012-08-01 更新说明明确写“新坐骑：雷象、剑齿兽”�
 2012-09-25 活动明确出现“坐骑培养幸运符”。证明 V860 后极近版本已经存在坐骑培养相关系统/道具，但无法仅凭该资料证明 V860 2012-08-01 当天已开放完整培养系统。
 分类：POST_V860_NEARBY。
 
-### 仍缺失的旧坐骑
-“新坐骑：雷象、剑齿兽”的措辞直接说明 V860 之前已经存在至少一种坐骑，但本轮公开搜索尚未找到可靠旧坐骑名称。因此：
-- pre-V860 mount count >= 1
-- names = UNKNOWN
-- 最高优先级继续搜索 V810/V859、2010-2012 活动公告、贴吧/QJTYW旧索引和JAR strings。
+### 旧坐骑候选
+- 飞毯：玩家回忆高概率候选，VERSION_UNKNOWN。
 
-## H. 恢复工程需要的数据结构
+“新坐骑：雷象、剑齿兽”的措辞直接说明 V860 之前已经存在至少一种坐骑，因此：
+- pre-V860 mount count >= 1
+- confirmed pre-V860 names = UNKNOWN
+- 飞毯目前只是强候选，不能升级为 V860_CONFIRMED。
+
+## J. 恢复工程需要的数据结构
 
 DeputySpec:
 - canonicalName / aliases
@@ -126,9 +195,10 @@ DeputySpec:
 - obtainMethod / NPC / map / lottery tier / contract item
 - base stats / growth stats / stat variance
 - maxLevel
-- reincarnation rules
+- tier / reincarnation / classChange rules
 - skill pool / skill grade / active-passive / target / status / time-window
-- appointment state
+- inheritedSkills / lockedSkillSlots / inheritanceGrade
+- appointment / guarding state
 - portrait / overworld sprite / battle sprite / animation
 - contract/card icon
 
@@ -143,10 +213,13 @@ MountSpec:
 - mount/unmount animation
 - overworld collision/render layer
 
-## I. 证据隔离
+## K. 证据隔离
 - 2008资料：同期原资料，不自动等于 V860最终数值。
 - 追猎者、雷象、剑齿兽：V860直接证实。
 - 龙血剑豪、坐骑培养幸运符：2012-09-25，POST_V860_NEARBY。
-- 美杜莎/二阶三阶/成长卡：后期服，必须查首次版本。
+- 龙枪统帅、技能传承：2013-06，原服直接证实但晚于V860。
+- 美杜莎/二阶三阶/成长卡：后期同游戏视频，首次版本待定。
+- 圣骑士/飞毯：高概率玩家回忆，版本待定。
+- 忍者/鸣人/金刚狼：用户提供线索，必须独立验证。
 
-下一步：专攻 2009-2012 的“副官/坐骑/契约/成长/转生/骑宠/培养”历史公告和QJTYW旧索引，并获取任一历史JAR后批量 strings + 图片资源枚举。
+下一步：继续专攻 2009-2013 的 QJTYW 论坛/更新、92le缓存、百度贴吧用户主页与帖子残片；优先寻找契约礼包/宝箱奖励清单，因为一次奖励表可能批量暴露大量遗漏副官名。获取任一历史JAR后批量 strings + 图片资源枚举。
