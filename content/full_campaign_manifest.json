@@ -1,0 +1,127 @@
+{
+  "meta": {
+    "title": "HZW V860 recovered full campaign manifest",
+    "policy": "Only source-supported chapter structure is marked verified. Missing server-side dialogue, exact geometry, or later chapters are marked reconstructed/pending instead of being presented as original.",
+    "client": "海贼王：秘宝传说 V8.60.0",
+    "terminology": {"companion": "副官", "skills": "战斗技能/职业技能", "guild": "公会"}
+  },
+  "main_route": [
+    "windmill", "marine_base", "orange", "juice", "lock", "sea_restaurant",
+    "cactus", "little_garden", "bat", "winter", "forgotten", "beast"
+  ],
+  "parallel_routes": [
+    {"from": "little_garden", "to": "star_moon", "kind": "major_side_campaign"},
+    {"from": "world", "to": "food_god", "kind": "repeatable_challenge"}
+  ],
+  "chapters": [
+    {
+      "id": "windmill", "name": "风车镇", "status": "implemented_opening_region",
+      "evidence": [
+        "https://m.ali213.net/gonglue/071114/14541.html",
+        "https://m.ali213.net/gonglue/080418/14125.html"
+      ],
+      "verified_content": ["遗忘之船起点", "西尔/阿丙/雅雅", "路飞阿姨", "村长/自画王", "香克斯宝藏", "斧头帮", "神帆", "海特造船与炮术", "断臂海鳄鱼", "东港出海"],
+      "notes": "早期攻略同时记录了1/3/5/7/9等按键用途。"
+    },
+    {
+      "id": "marine_base", "name": "海军基地", "status": "implemented_opening_region",
+      "evidence": [
+        "https://m.ali213.net/gonglue/080116/14340.html",
+        "https://m.ali213.net/gonglue/080121/14321.html"
+      ],
+      "verified_content": ["药剂师抢劫剧情", "酒吧刀客", "海军考验", "老板娘与被关丈夫", "索伦斯", "伪造摩根信件", "监狱长/犯人名单/钥匙", "炸监狱救居民", "11条支线"],
+      "notes": "副官支线与海军基地支线体系已纳入。"
+    },
+    {
+      "id": "orange", "name": "橘子岛", "status": "research_verified_needs_full_data_port",
+      "evidence": [
+        "https://m.ali213.net/gonglue/080114/14349.html",
+        "https://m.ali213.net/gonglue/071224/14387.html",
+        "https://m.ali213.net/gonglue/080118/14324.html"
+      ],
+      "verified_content": ["藏宝图", "山羊/灯塔", "海贼人质", "休休", "兽医与医疗器械", "兽王石", "山洞/蜘蛛巢", "守望老人", "最终宝藏"],
+      "notes": "2007与2008攻略存在版本差异，导入时保留版本字段。"
+    },
+    {
+      "id": "juice", "name": "果汁村", "status": "research_verified_needs_full_data_port",
+      "evidence": [
+        "https://m.ali213.net/gonglue/080115/14346.html",
+        "https://m.ali213.net/gonglue/080123/14319.html"
+      ],
+      "verified_content": ["青椒", "长鼻妇人", "克洛", "梅利", "可雅", "布奇", "山姆", "乌索普相关剧情", "多条支线"],
+      "notes": "主线末尾明确引向洛克岛。"
+    },
+    {
+      "id": "lock", "name": "洛克岛", "status": "research_verified_needs_full_data_port",
+      "evidence": [
+        "https://m.ali213.net/gonglue/080123/14318.html",
+        "https://m.ali213.net/gonglue/080203/14290.html"
+      ],
+      "verified_content": ["导游小姐", "哈多", "海军驻地", "斯摩格", "塔丝琪", "卡特", "宝刀支线", "赌场/美人争霸/跑环"],
+      "notes": "主线和13条详细支线均有幸存攻略。"
+    },
+    {
+      "id": "sea_restaurant", "name": "海上餐厅", "status": "research_verified_needs_full_data_port",
+      "evidence": ["https://m.ali213.net/gonglue/080213/14288.html"],
+      "verified_content": ["桑吉", "霍波迪", "阿金", "卓夫", "力克海贼团", "海战救厨师", "海军旗舰钥匙/档案", "救阿金", "最终与桑吉战斗", "调味料/礼物等支线"],
+      "notes": "10条主线及多条支线有完整奖励记录。"
+    },
+    {
+      "id": "cactus", "name": "仙人掌岛", "status": "bridge_verified_exact_mainline_pending",
+      "evidence": ["https://m.ali213.net/gonglue/080407/14167.html"],
+      "verified_content": ["存在仙人掌岛外海", "小花园主线从仙人掌岛外海南下进入"],
+      "notes": "尚未找到同等完整的仙人掌岛独立主线攻略；不得凭ONE PIECE原作剧情冒充原服任务。"
+    },
+    {
+      "id": "little_garden", "name": "小花园", "min_level": 50, "status": "research_verified_needs_full_data_port",
+      "evidence": ["https://m.ali213.net/gonglue/080407/14167.html"],
+      "verified_content": ["西码头告示牌", "记者斯坦恩", "雪莉", "毒虫/脚印照片", "两巨人", "祖屋线索", "稿件", "神秘浴池"],
+      "notes": "攻略明确13段主线并给出多个奖励。"
+    },
+    {
+      "id": "bat", "name": "蝙蝠岛", "min_level": 55, "status": "research_verified_needs_full_data_port",
+      "evidence": ["https://m.ali213.net/gonglue/080820/13841.html"],
+      "verified_content": ["村长", "神父", "墓地怨灵", "探险者头盔", "赛勒医生", "羊脑", "城堡", "托瑞多", "管家/忏悔书"],
+      "notes": "7条主线，入口从小花园码头出港。"
+    },
+    {
+      "id": "winter", "name": "冬之岛", "min_level": 62, "status": "research_verified_needs_full_data_port",
+      "evidence": ["https://m.ali213.net/gonglue/080603/14035.html"],
+      "verified_content": ["保罗", "杰克斯/波力", "多尔顿", "偷猎者帽子/猎枪", "库蕾哈", "兔肉/八角盘", "娃娃花瓣/蘑菇", "豪宅盒子", "千冰湖钥匙", "雪峰瓶子"],
+      "notes": "9条主线，攻略保留了经验/银币/声望奖励。"
+    },
+    {
+      "id": "star_moon", "name": "星月岛 / 新月岛", "status": "research_verified_parallel_campaign",
+      "evidence": ["https://m.ali213.net/gonglue/080910/13748.html"],
+      "verified_content": ["小花园中心导游", "飞行卡到新月岛码头", "人皇", "莲华", "档案室/仲裁者", "骑士营地", "炼金屋", "四季迷宫", "地下城", "勇者", "西方战士", "参谋长", "战争之桥", "莲华羽化"],
+      "notes": "攻略明确15步大型主线，作为小花园之后的并行大型章节。"
+    },
+    {
+      "id": "forgotten", "name": "幽忘岛", "min_level": 68, "status": "research_verified_needs_full_data_port",
+      "evidence": ["https://m.ali213.net/gonglue/080927/13692.html"],
+      "verified_content": ["波特林", "鲜果林妖花", "乔治", "采药谷药剂师", "露路博士", "哈莉/秋秋", "熊掌", "科学书", "守夜人", "幻影僵尸", "冷库阿兴/阿当", "奥利亚", "幽幽僵尸", "男仆主管"],
+      "notes": "攻略从冬之岛海路进入，共13个主线编号、18个交互步骤。"
+    },
+    {
+      "id": "beast", "name": "巨兽岛", "min_level": 70, "status": "research_verified_needs_full_data_port",
+      "evidence": ["https://m.ali213.net/gonglue/081027/13616.html"],
+      "verified_content": ["波特林送信", "码头摩斯", "镇长乔特", "平衡高地妮娜", "绝望高原", "长老法尔", "贤者之书/第99页", "月光石/月光镜", "友善之草/药粉", "猎人巴德", "地下泉眼", "机关石/秘钥洞穴", "巨兽宝藏", "小丑船长战斗"],
+      "notes": "要求完成幽忘岛且70级；73级完成最终宝藏，攻略明确15段主线。"
+    },
+    {
+      "id": "food_god", "name": "食神岛 / 七海猎天", "status": "research_verified_repeatable_challenge",
+      "evidence": ["https://m.ali213.net/gonglue/080408/14162.html"],
+      "verified_content": ["按等级接挑战", "传送目标", "强敌", "推荐组队", "经验奖励", "海贼王徽章"],
+      "notes": "属于挑战玩法，不作为线性主线强制节点。"
+    }
+  ],
+  "late_v860_systems": {
+    "status": "verified_systems_story_maps_pending",
+    "evidence": [
+      "https://qjtyw.cn/download/book_view.aspx?classid=23&id=419&lpage=1&sid=-2-0-0-0-320&siteid=1000&sp=0",
+      "https://www.3533.com/news/11/201210/66184/"
+    ],
+    "verified": ["三职业：战士/格斗家/医", "副官体系", "法宝融合", "坐骑：雷象/剑齿兽", "副官：追猎者"],
+    "notes": "2009-2012后期地图与完整主线尚缺同等级可靠攻略；继续检索，不用其它海贼王游戏剧情补空。"
+  }
+}
