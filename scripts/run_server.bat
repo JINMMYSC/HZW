@@ -1,21 +1,22 @@
 @echo off
 setlocal EnableExtensions
 cd /d "%~dp0.."
-title HZW V860 V5 Full Campaign Server
+title HZW V860 V6 Evidence Full Restore Server
 chcp 65001 >nul 2>nul
 
 echo ============================================================
-echo HZW V860 - V5 full recovered campaign
+echo HZW V860 - V6 evidence-backed full restoration
 echo TCP : 0.0.0.0:5926
 echo HTTP: 0.0.0.0:8080
 echo Exit : native V860 map triggers - no early coordinate warp
 echo Door : reciprocal indoor/outdoor exits enabled
-echo NPC  : collision auto-interaction + fast key-5 target search
+echo NPC  : collision auto-interaction + fast key-5 adjacent target
 echo Keys : 1 personal / 3 friends / 5 NPC / 7 chat / 9 task-map / 0 system
 echo Local: * names / # chat history remain native client-side controls
 echo World: Windmill - Marine - Orange - Juice - Lock - Restaurant
 echo        Cactus bridge - Little Garden - Bat - Winter - Forgotten - Beast
 echo Branch: Star Moon / New Moon campaign
+echo System: profession / deputy / ship / mount / artifact evidence profiles
 echo HZW  : Deputy / Battle Skills / Guild
 echo ============================================================
 echo.
@@ -35,9 +36,9 @@ if not defined PY_CMD (
 )
 
 echo [OK] Python launcher: %PY_CMD%
-echo [INFO] Starting V5 full campaign server...
+echo [INFO] Starting V6 evidence-backed full server...
 echo.
-%PY_CMD% chapter_server_v5.py --debug
+%PY_CMD% chapter_server_v6.py --debug
 set "SERVER_EXIT=%ERRORLEVEL%"
 
 echo.
