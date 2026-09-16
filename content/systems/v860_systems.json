@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "id": "hzw_v860_evidence_systems",
+    "title": "HZW V860 证据分级系统库",
+    "profile": "V860",
+    "policy": "V860_DIRECT 可直接作为V860功能；同期原服资料保留年代；POST_V860只建模不默认启用；未知数值不得编造。"
+  },
+  "professions": {
+    "warrior": {"name":"战士","min_level":10,"evidence":"ORIGINAL_DOC_V860_ERA","enabled":true,"role":"高攻击/高防御"},
+    "fighter": {"name":"格斗家","min_level":10,"evidence":"ORIGINAL_DOC_V860_ERA","enabled":true,"role":"敏捷/暴击取向"},
+    "doctor": {"name":"医师","min_level":10,"evidence":"ORIGINAL_DOC_V860_ERA","enabled":true,"role":"治疗与群体技能"}
+  },
+  "deputies": {
+    "taozi": {
+      "name":"桃子","aliases":["桃子妹妹"],"evidence":"CONTEMPORARY_CONFIRMED_2008","enabled":true,
+      "obtain":{"area":"洛克岛常人旅馆","npc":"雇佣兵商人","method":"出售","price":null},
+      "base":{"strength":36.0,"agility":30.0,"stamina":25.0,"intelligence":1.0,"armor":20.0},
+      "growth":{"strength":4.0,"agility":4.0,"stamina":2.0,"intelligence":2.0,"armor":6.0},
+      "notes":["同期攻略称桃子为当时唯一动态副官","存在转生"]
+    },
+    "mengmeng": {
+      "name":"萌萌","evidence":"CONTEMPORARY_CONFIRMED_2008","enabled":true,
+      "obtain":{"area":"洛克岛常人旅馆","npc":"雇佣兵商人","method":"出售","price":null},
+      "base":{"strength":4.7,"agility":1.8,"stamina":1.0,"intelligence":2.4,"armor":9.6},
+      "growth":{"strength":4.7,"agility":1.8,"stamina":2.4,"intelligence":1.0,"armor":9.6}
+    },
+    "randy": {
+      "name":"兰迪","evidence":"CONTEMPORARY_CONFIRMED_2008","enabled":true,
+      "obtain":{"area":"洛克岛常人旅馆","npc":"雇佣兵商人","method":"出售","price":null},
+      "base":{"strength":5.6,"agility":3.3,"stamina":1.6,"intelligence":1.0,"armor":6.4},
+      "growth":{"strength":5.6,"agility":3.3,"stamina":1.6,"intelligence":1.0,"armor":6.4}
+    },
+    "junior_female_pirate": {
+      "name":"初级女海盗","aliases":["初级女副官"],"evidence":"CONTEMPORARY_CONFIRMED_2008","enabled":true,
+      "obtain":{"area":"洛克岛常人旅馆","npc":"雇佣兵商人","method":"出售","price":null},
+      "base":{"strength":4.0,"agility":4.0,"stamina":2.0,"intelligence":1.0,"armor":1.0},
+      "growth":{"strength":4.0,"agility":4.0,"stamina":2.0,"intelligence":1.0,"armor":6.0}
+    },
+    "junior_male_pirate": {
+      "name":"初级男海盗","aliases":["初级男副官","初级海盗"],"evidence":"CONTEMPORARY_CONFIRMED_2008","enabled":true,
+      "obtain":{"area":"洛克岛常人旅馆","npc":"雇佣兵商人","method":"出售","price":null},
+      "base":{"strength":4.0,"agility":2.0,"stamina":2.0,"intelligence":1.0,"armor":1.0},
+      "growth":{"strength":4.0,"agility":2.0,"stamina":2.0,"intelligence":1.0,"armor":6.0}
+    },
+    "golden_wargod": {
+      "name":"黄金军神","evidence":"CONTEMPORARY_CONFIRMED_2008","enabled":true,
+      "obtain":{"method":"抽奖箱钥匙","lottery_tier":"四等奖","view_at":"果汁村许愿板"},
+      "growth":{"strength":3.4,"agility":1.8,"intelligence":1.0,"stamina":3.0,"armor":12.0},
+      "skills":["剧毒之风","亢龙","无伤战狂"]
+    },
+    "blade_soul": {
+      "name":"刀魂战士","evidence":"CONTEMPORARY_CONFIRMED_2008","enabled":true,
+      "obtain":{"method":"抽奖箱钥匙","lottery_tier":"四等奖","view_at":"果汁村许愿板"},
+      "growth":{"strength":4.3,"agility":4.5,"intelligence":1.0,"stamina":1.6,"armor":8.0},
+      "skills":["剧毒之风","暗月守护","清晨守护","凌晨守护","太阳拳","天赋群攻","天赋闪避"]
+    },
+    "hunter": {
+      "name":"追猎者","evidence":"V860_DIRECT_CONFIRMED","enabled":true,
+      "obtain":{"method":null},"unknown":["获取方式","初始属性","成长","技能","转生数据","Sprite"]
+    },
+    "medusa": {"name":"美杜莎","evidence":"ORIGINAL_DOC_2012_02","enabled":false,"obtain":{"item":"美杜莎契约盒"},"notes":["最迟2012-02原服存在契约盒；精确V860归属与属性待证"]},
+    "demon_hunter": {"name":"恶魔猎人","evidence":"ORIGINAL_DOC_2012_02","enabled":false,"obtain":{"item":"恶魔猎人契约盒"}},
+    "druid": {"name":"德鲁伊","evidence":"ORIGINAL_DOC_2012_02","enabled":false,"obtain":{"item":"德鲁伊契约盒"}},
+    "dragon_blood_swordsman": {"name":"龙血剑豪","evidence":"POST_V860_NEARBY_2012_09","enabled":false},
+    "dragon_lance_commander": {"name":"龙枪统帅","evidence":"POST_V860_ORIGINAL_2013","enabled":false}
+  },
+  "mounts": {
+    "thunder_elephant": {"name":"雷象","evidence":"V860_DIRECT_CONFIRMED","enabled":true,"unknown":["获取方式","属性","骑乘Sprite","速度"]},
+    "saber_beast": {"name":"剑齿兽","evidence":"V860_DIRECT_CONFIRMED","enabled":true,"unknown":["获取方式","属性","骑乘Sprite","速度"]},
+    "deep_sea_wyvern": {"name":"深海翼龙","evidence":"ORIGINAL_DOC_2012_02","enabled":false,"notes":["2012-02原服明确为新坐骑；V860首发时间仍有版本争议"]},
+    "flying_carpet": {"name":"飞毯","evidence":"PLAYER_MEMORY_VERSION_UNKNOWN","enabled":false}
+  },
+  "features": {
+    "artifact_fusion": {"name":"法宝融合","evidence":"V860_DIRECT_CONFIRMED","enabled":true,"unknown":["融合公式","材料","概率","UI编码"]},
+    "mount_cultivation": {"name":"坐骑培养","evidence":"POST_V860_NEARBY_2012_09","enabled":false},
+    "divine_forge": {"name":"神铸","evidence":"POST_V860_ORIGINAL_2012_11","enabled":false,"rules":["80级以上金档套装","消耗神铸石+高级元素精华","随机1-3条神铸属性","淬炼石刷新","强化上限+20","保留强化/元素/贝壳/孔数"]},
+    "mystery_shop_late": {"name":"神秘商店/天神体系","evidence":"POST_V860_ORIGINAL_2012_11","enabled":false,"items":["天神碎片","6级宝石兑换券","打磨石","时光沙漏","誓言之证","海洋精金"]}
+  },
+  "ship": {
+    "unlock":{"quest":"wm10","name":"第一艘船/军舰","evidence":"CONTEMPORARY_CONFIRMED_2008"},
+    "starter_cannon":{"item":"新手炮","evidence":"CONTEMPORARY_CONFIRMED_2008"},
+    "starter_gunnery":{"skill":"初级炮术","evidence":"CONTEMPORARY_CONFIRMED_2008"},
+    "windmill_to_marine":{"evidence":"CONTEMPORARY_CONFIRMED_2008","mode":"实际航行阶段","exact_sea_geometry":null}
+  }
+}
