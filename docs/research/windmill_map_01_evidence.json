@@ -1,0 +1,46 @@
+{
+  "schema": "hzw-evidence-map-v1",
+  "internal_id": "windmill_forgotten_ship",
+  "canonical_name": "遗忘之船",
+  "evidence_level": ["ORIGINAL_DOC", "VERSION_DRIFT"],
+  "source_urls": [
+    "https://m.ali213.net/gonglue/080418/14125.html"
+  ],
+  "known": {
+    "start_region": true,
+    "tutorial_npc_interaction": true,
+    "dialogue_choice_label": "明白",
+    "exit_target_internal_id": "windmill_crossroad",
+    "exit_target_source_name": "路口",
+    "exit_triggers_cutscene": true
+  },
+  "version_drift": {
+    "tutorial_reward_combat_exp": {
+      "2008_04_18": 20,
+      "2007_source": 10
+    },
+    "crossroad_cutscene_reward_combat_exp": {
+      "2008_04_18": 50
+    }
+  },
+  "unknown": [
+    "original_map_id",
+    "width",
+    "height",
+    "tile_size",
+    "tilesets",
+    "tile_layers",
+    "collision_mask",
+    "spawn_coordinates",
+    "exit_coordinates",
+    "exit_direction",
+    "npc_original_id",
+    "npc_name",
+    "npc_sprite",
+    "npc_coordinates",
+    "dialogue_text",
+    "music",
+    "sound_effects"
+  ],
+  "implementation_policy": "Do not generate original-looking geometry until V860 JAR, V860 video frames, or an original map payload is recovered."
+}
