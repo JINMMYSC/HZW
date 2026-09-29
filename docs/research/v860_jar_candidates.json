@@ -1,0 +1,156 @@
+{
+  "schema": "hzw-v860-jar-candidates-v1",
+  "updated": "2026-09-30",
+  "classification_rule": "A downloaded JAR remains a candidate until its own bytes are scanned. V860_DIRECT_BINARY_MATCH requires MIDlet-Version 8.60.0 and the exact internal string 860.1HZ0000.NON5800.CT.",
+  "direct_version_page": {
+    "evidence_grade": "V860_DIRECT",
+    "url": "https://qjtyw.cn/download/book_view.aspx?classid=23&id=419&lpage=1&sid=-2-0-0-0-320&siteid=1000&sp=0",
+    "date": "2012-08-01",
+    "labels": [
+      "HZW_E62",
+      "HZW_E680",
+      "HZW_E770",
+      "HZW_GEHK",
+      "HZW_GEHT",
+      "HZW_GELK",
+      "HZW_GELT",
+      "HZW_GESEK",
+      "HZW_GESK",
+      "HZW_GESTK",
+      "HZW_GETK",
+      "ZW_K300",
+      "HZW_K500",
+      "ZW_K700",
+      "HZW_L6",
+      "HZW_MOTOV8",
+      "HZW_N73D",
+      "HZW_S700"
+    ]
+  },
+  "candidates": [
+    {
+      "id": "dospy-e62-382392",
+      "filename": "海贼王-秘宝传说_诺基亚 E62系列(320×240)-382392.jar",
+      "claimed_device": "Nokia E62 320×240",
+      "size_label": "373.43 KB",
+      "source_url": "https://www.dospy.wang/thread-19446-1-1.html",
+      "evidence_grade": "JAR_CANDIDATE_HIGH",
+      "cross_reference": "HZW_E62"
+    },
+    {
+      "id": "dospy-n73-513458",
+      "filename": "海贼王-秘宝传说_诺基亚 N73系列(240×320)-513458.jar",
+      "claimed_device": "Nokia N73 240×320",
+      "size_label": "501.42 KB",
+      "source_url": "https://www.dospy.wang/thread-19446-1-1.html",
+      "evidence_grade": "JAR_CANDIDATE_HIGH",
+      "cross_reference": "HZW_N73D"
+    },
+    {
+      "id": "dospy-n70-496184",
+      "filename": "海贼王-秘宝传说_诺基亚 N70系列(176×208)-496184.jar",
+      "claimed_device": "Nokia N70 176×208",
+      "size_label": "484.55 KB",
+      "source_url": "https://www.dospy.wang/thread-19446-1-1.html",
+      "evidence_grade": "VERSION_DRIFT_JAR_CANDIDATE"
+    },
+    {
+      "id": "dospy-n97-403336",
+      "filename": "海贼王-秘宝传说_诺基亚 N97系列(360×640)-403336.jar",
+      "claimed_device": "Nokia N97 360×640",
+      "size_label": "393.88 KB",
+      "source_url": "https://www.dospy.wang/thread-19446-1-1.html",
+      "evidence_grade": "VERSION_DRIFT_JAR_CANDIDATE"
+    },
+    {
+      "id": "dospy-n8-353130",
+      "filename": "海贼王-秘宝传说_诺基亚 N8系列(360×640)-353130.jar",
+      "claimed_device": "Nokia N8 360×640",
+      "size_label": "344.85 KB",
+      "source_url": "https://www.dospy.wang/thread-19446-1-1.html",
+      "evidence_grade": "VERSION_DRIFT_JAR_CANDIDATE"
+    },
+    {
+      "id": "dospy-n7370-367200",
+      "filename": "海贼王-秘宝传说_诺基亚 N7370系列(240×320)-367200.jar",
+      "claimed_device": "Nokia N7370 240×320",
+      "size_label": "358.59 KB",
+      "source_url": "https://www.dospy.wang/thread-19446-1-1.html",
+      "evidence_grade": "VERSION_DRIFT_JAR_CANDIDATE"
+    },
+    {
+      "id": "dospy-x3-511150",
+      "filename": "海贼王-秘宝传说_诺基亚 X3系列(240×320)-511150.jar",
+      "claimed_device": "Nokia X3 240×320",
+      "size_label": "499.17 KB",
+      "source_url": "https://www.dospy.wang/thread-19446-1-1.html",
+      "evidence_grade": "VERSION_DRIFT_JAR_CANDIDATE"
+    },
+    {
+      "id": "dospy-qd-353197",
+      "filename": "海贼王-秘宝传说_诺基亚 QD系列(176×208)-353197.jar",
+      "claimed_device": "Nokia QD 176×208",
+      "size_label": "344.92 KB",
+      "source_url": "https://www.dospy.wang/thread-19446-1-1.html",
+      "evidence_grade": "VERSION_DRIFT_JAR_CANDIDATE"
+    },
+    {
+      "id": "dospy-n6230i-281185",
+      "filename": "海贼王-秘宝传说_诺基亚 N6230i系列(208×208)-281185.jar",
+      "claimed_device": "Nokia N6230i 208×208",
+      "size_label": "274.59 KB",
+      "source_url": "https://www.dospy.wang/thread-19446-1-1.html",
+      "evidence_grade": "VERSION_DRIFT_JAR_CANDIDATE"
+    },
+    {
+      "id": "dospy-n6101-303803",
+      "filename": "海贼王-秘宝传说_诺基亚 N6101系列(128×160)-303803.jar",
+      "claimed_device": "Nokia N6101 128×160",
+      "size_label": "296.68 KB",
+      "source_url": "https://www.dospy.wang/thread-19446-1-1.html",
+      "evidence_grade": "VERSION_DRIFT_JAR_CANDIDATE"
+    },
+    {
+      "id": "dospy-n5500-373329",
+      "filename": "海贼王-秘宝传说_诺基亚 N5500系列(208×208)-373329.jar",
+      "claimed_device": "Nokia N5500 208×208",
+      "size_label": "364.58 KB",
+      "source_url": "https://www.dospy.wang/thread-19446-1-1.html",
+      "evidence_grade": "VERSION_DRIFT_JAR_CANDIDATE"
+    },
+    {
+      "id": "dospy-small-300372",
+      "filename": "海贼王-秘宝传说_小屏通用版(128×128)-300372.jar",
+      "claimed_device": "generic 128×128",
+      "size_label": "293.33 KB",
+      "source_url": "https://www.dospy.wang/thread-19446-1-1.html",
+      "evidence_grade": "VERSION_DRIFT_JAR_CANDIDATE"
+    },
+    {
+      "id": "quanjizhong-k700",
+      "filename": "海贼王-秘宝传说_索爱 K700系列(176x220).jar",
+      "claimed_device": "Sony Ericsson K700 176×220",
+      "source_url": "https://www.quanjizhong.top/thread-237-1-1.html",
+      "evidence_grade": "JAR_CANDIDATE",
+      "cross_reference": "ZW_K700",
+      "access_state": "DOWNLOAD_LINK_REPLY_GATED"
+    },
+    {
+      "id": "quanjizhong-v8",
+      "filename": "海贼王-秘宝传说_摩托罗 V8拉系列(240x320).jar",
+      "claimed_device": "Motorola V8 240×320",
+      "source_url": "https://www.quanjizhong.top/forum.php?extra=page%3D1&mobile=no&mod=viewthread&ordertype=1&tid=244",
+      "evidence_grade": "JAR_CANDIDATE",
+      "cross_reference": "HZW_MOTOV8",
+      "access_state": "DOWNLOAD_LINK_REPLY_GATED"
+    },
+    {
+      "id": "quanjizhong-qd",
+      "filename": "海贼王-秘宝传说_诺基亚 QD系列(176x208).jar",
+      "claimed_device": "Nokia QD 176×208",
+      "source_url": "https://www.quanjizhong.top/thread-233-1-1.html",
+      "evidence_grade": "VERSION_DRIFT_JAR_CANDIDATE",
+      "access_state": "DOWNLOAD_LINK_REPLY_GATED"
+    }
+  ]
+}
