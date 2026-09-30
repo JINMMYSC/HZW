@@ -21,6 +21,8 @@ It is intended for preservation/interoperability testing while the original prot
 - detailed protocol logging
 - JAR `csys/list.dat` patcher to redirect proxy group #3 to your server
 - V860 resource extractor
+- conservative decoded-payload analyzer for normal records and markers 124–127
+- deterministic multi-JAR inventory/diff report (hashes, Manifest, classes and resources)
 
 Phase 3 includes a minimal protocol-bootstrap map so the original world renderer can be exercised. It is not yet the original Windmill Village; NPC, original map content, collision semantics and battle remain under recovery.
 
@@ -60,6 +62,20 @@ python -m unittest discover -s tests -v
 ```
 
 The Phase-3 end-to-end smoke path should finish with `SMOKE_WORLD_OK`.
+
+For recovered artifacts:
+
+```bash
+python tools/analyze_payload.py decoded-payload.bin --out payload.json
+python tools/intake_jar.py HZW_E62.jar --out HZW_E62.intake.json
+python tools/diff_jars.py E62.jar N73.jar S700.jar --out jar-diff.json
+```
+
+The intake report only emits `V860_DIRECT_BINARY_MATCH` when the same JAR has
+both `MIDlet-Version: 8.60.0` and `860.1HZ0000.NON5800.CT` in its bytes.
+The payload analyzer intentionally stops at markers 124–126 and preserves the
+remaining bytes. Their framing and meaning are not yet proven. See
+`docs/research/V860_PAYLOAD_124_127_AND_FIRST_PACKET_2026-09-27.md`.
 
 ## Status
 
